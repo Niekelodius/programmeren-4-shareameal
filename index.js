@@ -21,6 +21,13 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/api/user/profile", (req, res) => {
+  res.status(404).json({  
+    status: 404,
+    result: "End point not realised",
+  });
+});
+
 app.post("/api/movie", (req, res) => {
   let movie = req.body;
   id++;
