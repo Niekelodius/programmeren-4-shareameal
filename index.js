@@ -21,49 +21,96 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/api/user/profile", (req, res) => {
-  res.status(404).json({  
-    status: 404,
-    result: "End point not realised",
-  });
-});
-
-app.post("/api/movie", (req, res) => {
-  let movie = req.body;
+app.post("/api/user", (req, res) => {
+  let user = req.body;
   id++;
-  movie = {
+  user = {
     id,
-    ...movie,
+    ...user,
   };
-  console.log(movie);
-  database.push(movie);
+  console.log(user);
+  database.push(user);
   res.status(201).json({
     status: 201,
     result: database,
   });
 });
 
-app.get("/api/movie/:movieId", (req, res, next) => {
-  const movieId = req.params.movieId;
-  console.log(`Movie met ID ${movieId} gezocht`);
-  let movie = database.filter((item) => item.id == movieId);
-  if (movie.length > 0) {
-    console.log(movie);
-    res.status(200).json({
-      status: 200,
-      result: movie,
+app.put("/api/user/:userId", (req, res) => {
+  const userId = req.params.userId;
+  let oldUser = database.filter((item) => item.id == userId);
+  if (oldUser.length > 0){
+    
+    let newUser = req.body;
+    newUser = {
+      id,
+      ...newUser,
+    };
+    console.log(newUser);
+    database[userId-1] = newUser;
+    
+    res.status(201).json({
+      status: 201,
+      result: newUser,
+    });
+    console.log(`Modified user ${userId}`);
+  }
+  else {
+    res.status(403).json({
+      status: 403,
+      result: `User with ID ${userId} not found`,
+    });
+  }
+
+});
+
+app.get("/api/user/profile", (req, res) => {
+  res.status(200).json({
+    status: 401,
+    result: `Unauthorized`,
+  });
+});
+
+app.get("/api/user/:userId", (req, res, next) => {
+  const userId = req.params.userId;
+  console.log(`User met ID ${userId} gezocht`);
+  let user = database.filter((item) => item.id == userId);
+  if (user.length > 0) {
+    console.log(user);
+    res.status(201).json({
+      status: 201,
+      result: user,
     });
   } else {
-    res.status(401).json({
-      status: 401,
-      result: `Movie with ID ${movieId} not found`,
+    res.status(403).json({
+      status: 403,
+      result: `User with ID ${userId} not found`,
     });
   }
 });
 
-app.get("/api/movie", (req, res, next) => {
-  res.status(200).json({
-    status: 200,
+app.delete("/api/user/:userId", (req, res, next) => {
+  const userId = req.params.userId;
+  console.log(`User with ID ${userId} has been deleted`);
+  let user = database.filter((item) => item.id == userId);
+  if (user.length > 0) {
+    console.log(user);
+    database.splice(user);
+    res.status(201).json({
+      status: 201,
+      result: user,
+    });
+  } else {
+    res.status(403).json({
+      status: 403,
+      result: `User with ID ${userId} not found`,
+    });
+  }
+});
+
+app.get("/api/user", (req, res, next) => {
+  res.status(201).json({
+    status: 201,
     result: database,
   });
 });
