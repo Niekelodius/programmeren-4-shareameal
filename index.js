@@ -47,7 +47,7 @@ app.put("/api/user/:userId", (req, res) => {
       ...newUser,
     };
     console.log(newUser);
-    database[userId-1] = newUser;
+    database[oldUser.id-1] = newUser;
     
     res.status(201).json({
       status: 201,
