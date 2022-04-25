@@ -60,7 +60,7 @@ app.put("/api/user/:userId", (req, res) => {
   if (oldUser.length > 0){
     
     let newUser = req.body;
-    id = oldUser.id
+    id = parseInt(userId);
     newUser = {
       id,
       ...newUser,
@@ -114,7 +114,7 @@ app.delete("/api/user/:userId", (req, res, next) => {
   let user = database.filter((item) => item.id == userId);
   if (user.length > 0) {
     console.log(user);
-    database.splice(user.id,1);
+    database.splice(userId,1);
     res.status(201).json({
       status: 201,
       result: user,
