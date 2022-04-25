@@ -95,7 +95,7 @@ app.delete("/api/user/:userId", (req, res, next) => {
   let user = database.filter((item) => item.id == userId);
   if (user.length > 0) {
     console.log(user);
-    database.splice(user);
+    database.splice(user.id,1);
     res.status(201).json({
       status: 201,
       result: user,
