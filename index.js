@@ -55,16 +55,18 @@ app.post("/api/user", (req, res) => {
 
 app.put("/api/user/:userId", (req, res) => {
   const userId = req.params.userId;
+
   let oldUser = database.filter((item) => item.id == userId);
   if (oldUser.length > 0){
     
     let newUser = req.body;
+    id = oldUser.id
     newUser = {
       id,
       ...newUser,
     };
     console.log(newUser);
-    database[oldUser.id] = newUser;
+    database[userId] = newUser;
     
     res.status(201).json({
       status: 201,
