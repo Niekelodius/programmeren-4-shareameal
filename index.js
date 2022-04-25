@@ -23,18 +23,35 @@ app.get("/", (req, res) => {
 
 app.post("/api/user", (req, res) => {
   let user = req.body;
-  id++;
   user = {
     id,
     ...user,
   };
-  console.log(user);
-  database.push(user);
-  res.status(201).json({
-    status: 201,
-    result: database,
+
+  const emailCheck = database.some(element => {
+    if (element.email ===user.email) {
+      return true;
+    }
   });
+
+  if (emailCheck) {
+    console.log(user.email + " already in use");
+    res.status(403).json({
+      status: 403,
+      result: `email already in use`,
+    });
+  }
+  else{
+    id++;
+    database.push(user);
+    console.log("added " + user);
+    res.status(201).json({
+      status: 201,
+      result: database,
+    });
+  }
 });
+
 
 app.put("/api/user/:userId", (req, res) => {
   const userId = req.params.userId;
