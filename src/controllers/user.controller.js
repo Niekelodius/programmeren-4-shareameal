@@ -1,7 +1,27 @@
+const assert = require('assert');
 let database = [];
 let id = 0;
 
 let userController = {
+
+    validateUser: (req, res, next) => {
+        let user = req.body;
+     
+        let {firstName, lastName, street, city, password, emailAdress} = user;
+        try {
+            assert(typeof firstName === 'string', 'firstName must be a string');
+            assert(typeof lastName === 'string', 'lastName must be a string');
+            assert(typeof password === 'string', 'password must be a string');
+            assert(typeof emailAdress === 'string', 'emailAdress must be a string');
+            next();
+        } catch (err) {
+            const error = {
+                status: 400,
+                result: err.message
+            };
+            next(error);
+        }
+    },
     
     addUser:(req, res) => {
         let user = req.body;
@@ -11,13 +31,13 @@ let userController = {
         };
     
         const emailCheck = database.some(element => {
-            if (element.email === user.email) {
+            if (element.emailAdress === user.emailAdress) {
                 return true;
             }
         });
     
         if (emailCheck) {
-            console.log(user.email + " already in use");
+            console.log(user.emailAdress + " already in use");
             res.status(403).json({
                 status: 403,
                 result: `email already in use`,
@@ -103,10 +123,11 @@ let userController = {
                 result: user,
             });
         } else {
-            res.status(403).json({
-                status: 403,
-                result: `User with ID ${userId} not found`,
-            });
+            const error = {
+                status: 404,
+                result: `User with ID ${userId} not found`
+            };
+            next(error);
         }
     },
 
