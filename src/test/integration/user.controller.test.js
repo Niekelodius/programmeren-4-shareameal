@@ -1,7 +1,9 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const req = require('express/lib/request');
-constserver = require('../../index');
+// const req = require('express/lib/request');
+const server = require('../../../index');
+const assert = require('assert')
+
 let database = [];
 
 chai.should();
