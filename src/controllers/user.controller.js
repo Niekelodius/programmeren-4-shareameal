@@ -13,8 +13,8 @@ let userController = {
         console.log(userId);
         try {
             database.some(element => {
-                if (element.emailAdress === emailAdress && element.id != userId) {
-                    assert.equal(element.emailAdress == emailAdress, 'emailAdress must be unique');
+                if (element.emailAdress === emailAdress) {
+                    assert.equal(element.id, userId, 'emailAdress must be unique');
                 }
             });
 
