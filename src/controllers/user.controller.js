@@ -1,6 +1,7 @@
 const assert = require('assert');
 let database = [];
 let id = 0;
+const dbconnection = require('../../database/dbconnection');
 
 let userController = {
 
@@ -8,7 +9,7 @@ let userController = {
         let user = req.body;
         const userId = req.params.userId;
 
-        let { firstName, lastName, street, city, password, emailAdress } = user;
+        let { firstName, lastName, street, city, password, emailAdress , phoneNumber} = user;
 
         console.log(userId);
         try {
@@ -22,6 +23,9 @@ let userController = {
             assert(typeof lastName === 'string', 'lastName must be a string');
             assert(typeof password === 'string', 'password must be a string');
             assert(typeof emailAdress === 'string', 'emailAdress must be a string');
+            assert(typeof street === 'string', 'street must be a string');
+            assert(typeof city === 'string', 'city must be a string');
+            assert(typeof phoneNumber === 'string', 'phoneNumber must be a string');
             next();
         } catch (err) {
             const error = {
@@ -82,10 +86,36 @@ let userController = {
     },
 
     getAllUsers: (req, res) => {
-        res.status(201).json({
-            status: 201,
-            result: database,
-        });
+        // res.status(201).json({
+        //     status: 201,
+        //     result: database,
+        // });
+        dbconnection.getConnection(function (err, connection) {
+            if (err) throw err; // not connected!
+      
+            // Use the connection
+            connection.query(
+              'SELECT id, name FROM meal;',
+              function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+      
+                // Handle error after the release.
+                if (error) throw error;
+      
+                // Don't use the connection here, it has been returned to the pool.
+                console.log('#result = ' + results.length);
+                res.status(200).json({
+                  statusCode: 200,
+                  results: results,
+                });
+      
+                // pool.end((err) => {
+                //   console.log('pool was closed');
+                // });
+              }
+            );
+          });
     },
 
     deleteUser: (req, res, next) => {
