@@ -2,7 +2,7 @@ const assert = require('assert');
 let database = [];
 let id = 0;
 const mysql = require('mysql');
-const dbconnection = require('../../database/dbconnection');
+const dbconnection = require('../../database/dbConnection');
 
 let userController = {
 
