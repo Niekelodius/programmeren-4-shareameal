@@ -11,6 +11,13 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(router);
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: 200,
+    result: "Hello World",
+  });
+});
+
 
 app.all("*", (req, res, next) => {
   const method = req.method;
@@ -22,12 +29,6 @@ app.all("*", (req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    status: 200,
-    result: "Hello World",
-  });
-});
 
 //error handler
 app.use((err, req, res, next) => {
