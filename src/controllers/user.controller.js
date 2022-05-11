@@ -9,7 +9,7 @@ let userController = {
     validateUser: (req, res, next) => {
         let user = req.body;
         const userId = req.params.userId;
-        let { firstName, lastName, street, city, password, emailAdress, phoneNumber } = user;
+        let { firstName, lastName, street, city, isActive, password, emailAdress, phoneNumber } = user;
 
         try {
             assert(typeof firstName === 'string', 'firstName must be a string');
@@ -31,7 +31,18 @@ let userController = {
 
     userFinder: (req, res, next) => {
         const userId = req.params.userId;
-
+        try {
+            assert(Number.isInteger(parseInt(userId)), "Id must be a number");
+            next();
+        } catch (err) {
+            const error = {
+                status: 400,
+                message: err.message,
+              };
+        
+              console.log(error);
+              next(error);
+        }
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err; // not connected!
             connection.query(
@@ -58,13 +69,13 @@ let userController = {
 
     addUser: (req, res) => {
         let user = req.body;
-        let { firstName, lastName, street, city, password, emailAdress, phoneNumber } = user;
+        let { firstName, lastName, isActive, street, city, password, emailAdress, phoneNumber , roles} = user;
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err; // not connected!
             connection.query(
-                `INSERT INTO user ( firstName, lastName, street, city, password, emailAdress, phoneNumber ) VALUES (${mysql.escape(user.firstName)}, ${mysql.escape(user.lastName)}, ${mysql.escape(user.street)}
-                , ${mysql.escape(user.city)}, ${mysql.escape(user.password)}, ${mysql.escape(user.emailAdress)}, ${mysql.escape(user.phoneNumber)});`,
+                `INSERT INTO user ( firstName, lastName, isActive, street, city, password, emailAdress, phoneNumber, roles ) VALUES (${mysql.escape(user.firstName)}, ${mysql.escape(user.lastName)}, ${mysql.escape(user.isActive)},
+                 ${mysql.escape(user.street)}, ${mysql.escape(user.city)}, ${mysql.escape(user.password)}, ${mysql.escape(user.emailAdress)}, ${mysql.escape(user.phoneNumber)},  ${mysql.escape(user.roles)} );`,
                 function (error, results, fields) {
                     if (error) {
                         console.log(error);
@@ -121,7 +132,7 @@ let userController = {
             // Use the connection
             connection.query(
                 //   'SELECT id, name FROM meal;',
-                'SELECT id, firstName, lastName, emailAdress FROM user;',
+                'SELECT * FROM user;',
                 function (error, results, fields) {
                     // When done with the connection, release it.
                     connection.release();
@@ -161,6 +172,7 @@ let userController = {
                 }
             );
         });
+        
 
         // console.log(`User with ID ${userId} has been deleted`);
         // let user = database.filter((item) => item.id == userId);
@@ -190,26 +202,53 @@ let userController = {
 
     },
 
+    // getUserById: (req, res, next) => {
+    //     const userId = req.params.userId;
+
+    //     dbconnection.getConnection(function (err, connection) {
+    //         if (err) throw err; // not connected!
+    //         connection.query(
+    //             `SELECT * FROM user WHERE id = ${userId};`,
+    //             function (error, results, fields) {
+
+    //                 connection.release();
+    //                 if (error) throw error;
+    //                 console.log('#result = ' + results.length);
+    //                 res.status(200).json({
+    //                     statusCode: 200,
+    //                     results: results,
+    //                 });
+    //             }
+    //         );
+    //     });
+    // },
+
     getUserById: (req, res, next) => {
-        const userId = req.params.userId;
+        const userId = req.params.id;
 
-        dbconnection.getConnection(function (err, connection) {
-            if (err) throw err; // not connected!
+        dbconnection.getConnection(function (err, connection){
             connection.query(
-                `SELECT * FROM user WHERE id = ${userId};`,
-                function (error, results, fields) {
-
-                    connection.release();
-                    if (error) throw error;
-                    console.log('#result = ' + results.length);
+                `SELECT * FROM user WHERE id =${userId}`,
+                (err, results, fields) => {
+                  if (err) throw err;
+                  if (results.length > 0) {
                     res.status(200).json({
-                        statusCode: 200,
-                        results: results,
+                      status: 200,
+                      result: results,
                     });
+                  } else {
+                    const error = {
+                      status: 404,
+                      message: "User with provided Id does not exist",
+                      result: "User with provided Id does not exist",
+                    };
+                    next(error);
+                  }
                 }
-            );
+              );
         });
     },
+      
 
     getProfile: (req, res, next) => {
         res.status(200).json({
