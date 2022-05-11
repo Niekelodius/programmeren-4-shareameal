@@ -247,11 +247,20 @@ let userController = {
                     connection.release();
                     if (error) throw error;
                     
-                    console.log('#result = ' + results.length);
-                    res.status(200).json({  
-                        statusCode: 200,
-                        message: user,
-                    });
+                    if (results.length > 0) {
+                        console.log('#result = ' + results.length);
+                        res.status(200).json({  
+                            statusCode: 200,
+                            message: user,
+                        });
+                    }else{
+                        const error = {
+                            status: 400,
+                            result: "User does not exist",
+                          };
+                          next(error);
+                    }
+
                 }
             );
         });
