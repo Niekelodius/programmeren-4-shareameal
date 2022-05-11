@@ -32,40 +32,56 @@ let userController = {
     userFinder: (req, res, next) => {
         const userId = req.params.userId;
         try {
-            assert(Number.isInteger(parseInt(userId)), "Id must be a number");
-            next();
+          assert(Number.isInteger(parseInt(userId)), "Id must be a number");
+          next();
         } catch (err) {
-            const error = {
-                status: 400,
-                message: err.message,
-              };
-        
-              console.log(error);
-              next(error);
+          const error = {
+            status: 400,
+            message: err.message,
+          };
+    
+          console.log(error);
+          next(error);
         }
-        dbconnection.getConnection(function (err, connection) {
-            if (err) throw err; // not connected!
-            connection.query(
-                `SELECT * FROM user WHERE id = ${userId};`,
-                function (error, results, fields) {
-                    try {
-                        assert.equal(results.length, 1, `User with ID ${userId} not found`);
-                        next();
-                    } catch (err) {
-                        const error = {
-                            status: 400,
-                            message: err.message
-                        };
-                        next(error);
-                    }
-                    connection.release();
-                    if (error) throw error;
-                    console.log('#result = ' + results.length);
-                }
-            );
-        });
+      },
 
-    },
+    // userFinder: (req, res, next) => {
+    //     const userId = req.params.userId;
+    //     try {
+    //         assert(Number.isInteger(parseInt(userId)), "Id must be a number");
+    //         next();
+    //     } catch (err) {
+    //         const error = {
+    //             status: 400,
+    //             message: err.message,
+    //           };
+        
+    //           console.log(error);
+    //           next(error);
+    //     }
+    //     dbconnection.getConnection(function (err, connection) {
+    //         if (err) throw err; // not connected!
+    //         connection.query(
+    //             `SELECT * FROM user WHERE id = ${userId};`,
+    //             function (error, results, fields) {
+    //                 try {
+    //                     assert.equal(results.length, 1, `User with ID ${userId} not found`);
+    //                     next();
+    //                 } catch (err) {
+    //                     const error = {
+    //                         status: 400,
+    //                         message: err.message
+    //                     };
+    //                     next(error);
+    //                 }
+    //                 connection.release();
+    //                 if (error) throw error;
+    //                 console.log('#result = ' + results.length);
+    //             }
+    //         );
+    //     });
+
+    // },
 
     addUser: (req, res) => {
         let user = req.body;
@@ -100,26 +116,58 @@ let userController = {
     },
 
 
+    // const userId = req.params.userId;
+    // dbconnection.getConnection(function (err, connection){
+    //     connection.query(
+    //         `SELECT * FROM user WHERE id =${userId}`,
+    //         (err, results, fields) => {
+    //           if (err) throw err;
+    //           if (results.length > 0) {
+    //             res.status(200).json({
+    //               status: 200,
+    //               message: results,
+    //             });
+    //           } else {
+    //             const error = {
+    //               status: 404,
+    //               message: "User with provided Id does not exist",
+    //             };
+    //             next(error);
+    //           }
+    //         }
+    //       );
+    // });
+
+
     editUser: (req, res, next) => {
         const userId = req.params.userId;
         let user = req.body;
         let { firstName, lastName, street, city, password, emailAdress, phoneNumber } = user;
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err; // not connected!
-
             connection.query(
                 `UPDATE user SET firstName = ${mysql.escape(user.firstName)} , lastName = ${mysql.escape(user.lastName)} , street = ${mysql.escape(user.street)} 
                 , city = ${mysql.escape(user.city)} , password = ${mysql.escape(user.password)} , emailAdress = ${mysql.escape(user.emailAdress)} , phoneNumber = ${mysql.escape(user.phoneNumber)} 
                 WHERE id = ${userId} ;`,
                 function (error, results, fields) {
-                    connection.release();
-                    if (error) throw error;
+                    // connection.release();
+                    if (error) throw err;
+                    
+                    if (results == 0) {
+                        const error = {
+                          status: 404,
+                          message: "User does not exist"
+                        };
+                        next(error);
+                      } else {
+                        res.status(200).json({
+                            statusCode: 200,
+                            message: user
+                        });
+                      }
+                    
                     console.log('#result = ' + results.length);
-                    res.status(200).json({
-                        statusCode: 200,
-                        message: user,
-                    });
+     
                 }
             );
         });
@@ -167,6 +215,13 @@ let userController = {
 
                     connection.release();
                     if (error) throw error;
+                    if (!results) {
+                        const error = {
+                          status: 400,
+                          result: "User does not exist",
+                        };
+                        next(error);
+                    }
                     console.log('#result = ' + results.length);
                     user = results;
                 }
@@ -191,8 +246,9 @@ let userController = {
                 function (error, results, fields) {
                     connection.release();
                     if (error) throw error;
+                    
                     console.log('#result = ' + results.length);
-                    res.status(200).json({ 
+                    res.status(200).json({  
                         statusCode: 200,
                         message: user,
                     });
@@ -234,12 +290,12 @@ let userController = {
                   if (results.length > 0) {
                     res.status(200).json({
                       status: 200,
-                      message: results,
+                      message: results
                     });
                   } else {
                     const error = {
                       status: 404,
-                      message: "User with provided Id does not exist",
+                      message: "User does not exist",
                     };
                     next(error);
                   }
