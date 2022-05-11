@@ -45,45 +45,8 @@ let userController = {
         }
       },
 
-    // userFinder: (req, res, next) => {
-    //     const userId = req.params.userId;
-    //     try {
-    //         assert(Number.isInteger(parseInt(userId)), "Id must be a number");
-    //         next();
-    //     } catch (err) {
-    //         const error = {
-    //             status: 400,
-    //             message: err.message,
-    //           };
-        
-    //           console.log(error);
-    //           next(error);
-    //     }
-    //     dbconnection.getConnection(function (err, connection) {
-    //         if (err) throw err; // not connected!
-    //         connection.query(
-    //             `SELECT * FROM user WHERE id = ${userId};`,
-    //             function (error, results, fields) {
-    //                 try {
-    //                     assert.equal(results.length, 1, `User with ID ${userId} not found`);
-    //                     next();
-    //                 } catch (err) {
-    //                     const error = {
-    //                         status: 400,
-    //                         message: err.message
-    //                     };
-    //                     next(error);
-    //                 }
-    //                 connection.release();
-    //                 if (error) throw error;
-    //                 console.log('#result = ' + results.length);
-    //             }
-    //         );
-    //     });
 
-    // },
-
-    addUser: (req, res) => {
+    addUser: (req, res, next) => {
         let user = req.body;
         let { firstName, lastName, isActive, street, city, password, emailAdress, phoneNumber , roles} = user;
 
@@ -95,16 +58,21 @@ let userController = {
                 function (error, results, fields) {
                     if (error) {
                         console.log(error);
-                        res.status(409).json({
+                        const err = {
                             status: 409,
                             message: "Email not unique"
-                        })
+                        }
+                        // res.status(409).json({
+                        //     status: 409,
+                        //     message: "Email not unique"
+                        // })
                         connection.release();
+                        next(err);
                     }
 
                     else {
-                        if (error) throw error;
                         console.log('#result = ' + results.length);
+                        user.userId = results.insertId;
                         res.status(200).json({
                             status: 200,
                             message: user,
@@ -115,28 +83,6 @@ let userController = {
         });
     },
 
-
-    // const userId = req.params.userId;
-    // dbconnection.getConnection(function (err, connection){
-    //     connection.query(
-    //         `SELECT * FROM user WHERE id =${userId}`,
-    //         (err, results, fields) => {
-    //           if (err) throw err;
-    //           if (results.length > 0) {
-    //             res.status(200).json({
-    //               status: 200,
-    //               message: results,
-    //             });
-    //           } else {
-    //             const error = {
-    //               status: 404,
-    //               message: "User with provided Id does not exist",
-    //             };
-    //             next(error);
-    //           }
-    //         }
-    //       );
-    // });
 
 
     editUser: (req, res, next) => {
@@ -215,28 +161,12 @@ let userController = {
 
                     connection.release();
                     if (error) throw error;
-                    if (!results) {
-                        const error = {
-                          status: 400,
-                          result: "User does not exist",
-                        };
-                        next(error);
-                    }
                     console.log('#result = ' + results.length);
                     user = results;
                 }
             );
         });
         
-
-        // console.log(`User with ID ${userId} has been deleted`);
-        // let user = database.filter((item) => item.id == userId);
-        // console.log(user);
-        // database.splice(userId, 1);
-        // res.status(201).json({
-        //     status: 201,
-        //     result: user,
-        // });
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err; // not connected!
@@ -247,7 +177,7 @@ let userController = {
                     connection.release();
                     if (error) throw error;
                     
-                    if (results.length > 0) {
+                    if (user.length > 0) {
                         console.log('#result = ' + results.length);
                         res.status(200).json({  
                             statusCode: 200,
@@ -256,7 +186,7 @@ let userController = {
                     }else{
                         const error = {
                             status: 400,
-                            result: "User does not exist",
+                            message: "User does not exist",
                           };
                           next(error);
                     }
@@ -266,27 +196,6 @@ let userController = {
         });
 
     },
-
-    // getUserById: (req, res, next) => {
-    //     const userId = req.params.userId;
-
-    //     dbconnection.getConnection(function (err, connection) {
-    //         if (err) throw err; // not connected!
-    //         connection.query(
-    //             `SELECT * FROM user WHERE id = ${userId};`,
-    //             function (error, results, fields) {
-
-    //                 connection.release();
-    //                 if (error) throw error;
-    //                 console.log('#result = ' + results.length);
-    //                 res.status(200).json({
-    //                     statusCode: 200,
-    //                     results: results,
-    //                 });
-    //             }
-    //         );
-    //     });
-    // },
 
 
     getUserById: (req, res, next) => {
@@ -312,32 +221,6 @@ let userController = {
               );
         });
       },
-
-        // const userId = req.params.id;
-
-        // dbconnection.getConnection(function (err, connection){
-        //     connection.query(
-        //         `SELECT * FROM user WHERE id =${userId}`,
-        //         (err, results, fields) => {
-        //           if (err) throw err;
-        //           if (results.length > 0) {
-        //             res.status(200).json({
-        //               status: 200,
-        //               result: results,
-        //             });
-        //           } else {
-        //             const error = {
-        //               status: 404,
-        //               message: "User with provided Id does not exist",
-        //               result: "User with provided Id does not exist",
-        //             };
-        //             next(error);
-        //           }
-        //         }
-        //       );
-        // });
-
-
 
 
       //https://assertion-server-program-4.herokuapp.com/api/assert/t2
