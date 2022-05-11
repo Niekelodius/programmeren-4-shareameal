@@ -23,7 +23,7 @@ let userController = {
         } catch (err) {
             const error = {
                 status: 400,
-                result: err.message
+                message: err.message
             };
             next(error);
         }
@@ -54,7 +54,7 @@ let userController = {
                     } catch (err) {
                         const error = {
                             status: 400,
-                            result: err.message
+                            message: err.message
                         };
                         next(error);
                     }
@@ -81,7 +81,7 @@ let userController = {
                         console.log(error);
                         res.status(409).json({
                             status: 409,
-                            result: "Email not unique"
+                            message: "Email not unique"
                         })
                         connection.release();
                     }
@@ -91,7 +91,7 @@ let userController = {
                         console.log('#result = ' + results.length);
                         res.status(200).json({
                             status: 200,
-                            results: user,
+                            message: user,
                         });
                     }
                 }
@@ -118,7 +118,7 @@ let userController = {
                     console.log('#result = ' + results.length);
                     res.status(200).json({
                         statusCode: 200,
-                        results: user,
+                        message: user,
                     });
                 }
             );
@@ -144,7 +144,7 @@ let userController = {
                     console.log('#result = ' + results.length);
                     res.status(200).json({
                         statusCode: 200,
-                        results: results,
+                        message: results,
                     });
 
                     // pool.end((err) => {
@@ -194,7 +194,7 @@ let userController = {
                     console.log('#result = ' + results.length);
                     res.status(200).json({ 
                         statusCode: 200,
-                        results: user,
+                        message: user,
                     });
                 }
             );
@@ -234,12 +234,12 @@ let userController = {
                   if (results.length > 0) {
                     res.status(200).json({
                       status: 200,
-                      result: results,
+                      message: results,
                     });
                   } else {
                     const error = {
                       status: 404,
-                      result: "User with provided Id does not exist",
+                      message: "User with provided Id does not exist",
                     };
                     next(error);
                   }
@@ -284,7 +284,7 @@ let userController = {
     getProfile: (req, res, next) => {
         res.status(200).json({
             status: 401,
-            result: `Unauthorized`,
+            message: `Unauthorized`,
         });
     }
 
