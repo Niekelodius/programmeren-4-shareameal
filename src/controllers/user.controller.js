@@ -222,6 +222,7 @@ let userController = {
     //         );
     //     });
     // },
+    
 
     getUserById: (req, res, next) => {
         const userId = req.params.id;
