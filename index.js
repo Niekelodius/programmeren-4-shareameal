@@ -11,6 +11,30 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(router);
 
+// app.get("/", (req, res) => {
+//   res.status(200).json({
+//     status: 200,
+//     result: "Hello World",
+//   });
+// });
+
+
+// app.all("*", (req, res, next) => {
+//   const method = req.method;
+//   res.status(401).json({
+//     status: 401,
+//     result: "End-point not found",
+//   });
+//   console.log(`Method ${method} is aangeroepen`);
+//   next();
+// });
+
+app.all("*", (req, res, next) => {
+  const method = req.method;
+  console.log(`Method ${method} is aangeroepen op URL:${req.url}`);
+  next();
+});
+
 app.get("/", (req, res) => {
   res.status(200).json({
     status: 200,
@@ -18,15 +42,11 @@ app.get("/", (req, res) => {
   });
 });
 
-
-app.all("*", (req, res, next) => {
-  const method = req.method;
-  res.status(401).json({
-    status: 401,
+app.all("*", (req, res) => {
+  res.status(404).json({
+    status: 404,
     result: "End-point not found",
   });
-  console.log(`Method ${method} is aangeroepen`);
-  next();
 });
 
 

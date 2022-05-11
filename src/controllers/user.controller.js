@@ -79,8 +79,8 @@ let userController = {
                 function (error, results, fields) {
                     if (error) {
                         console.log(error);
-                        res.status(401).json({
-                            status: 401,
+                        res.status(409).json({
+                            status: 409,
                             result: "Email not unique"
                         })
                         connection.release();
@@ -222,11 +222,10 @@ let userController = {
     //         );
     //     });
     // },
-    
+
 
     getUserById: (req, res, next) => {
-        const userId = req.params.id;
-
+        const userId = req.params.userId;
         dbconnection.getConnection(function (err, connection){
             connection.query(
                 `SELECT * FROM user WHERE id =${userId}`,
@@ -240,7 +239,6 @@ let userController = {
                   } else {
                     const error = {
                       status: 404,
-                      message: "User with provided Id does not exist",
                       result: "User with provided Id does not exist",
                     };
                     next(error);
@@ -248,8 +246,40 @@ let userController = {
                 }
               );
         });
-    },
-      
+      },
+
+        // const userId = req.params.id;
+
+        // dbconnection.getConnection(function (err, connection){
+        //     connection.query(
+        //         `SELECT * FROM user WHERE id =${userId}`,
+        //         (err, results, fields) => {
+        //           if (err) throw err;
+        //           if (results.length > 0) {
+        //             res.status(200).json({
+        //               status: 200,
+        //               result: results,
+        //             });
+        //           } else {
+        //             const error = {
+        //               status: 404,
+        //               message: "User with provided Id does not exist",
+        //               result: "User with provided Id does not exist",
+        //             };
+        //             next(error);
+        //           }
+        //         }
+        //       );
+        // });
+
+
+
+
+      //https://assertion-server-program-4.herokuapp.com/api/assert/t2
+    //   {
+    //     "url": "https://share-a-meal-niek.herokuapp.com",
+    //     "studentnumber": 2183046
+    // }
 
     getProfile: (req, res, next) => {
         res.status(200).json({
