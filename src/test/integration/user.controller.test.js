@@ -110,18 +110,31 @@ describe('Manage users api/user', () => {
         it("TC 201-5 when the user gets added to the database, the result should be succesful", (done) => {
             chai.request(server).post('/api/user').send({
                 firstName: "twee",
-                lastName: "2",
-                street: " ",
-                city: " ",
+                lastName: "G2",
+                street: "a",
+                city: "b",
+                roles: " editor",
                 isActive: 1,
                 emailAdress: "mail2",
                 phoneNumber: "06",
                 password: "secret"
+
+//                 {
+//     "firstName": "Niek",
+//     "lastName": "Goossens",
+//     "emailAdress": "ncag@gmail.com",
+//     "password": "wachtwoord",
+//     "isActive": 1,
+//     "phoneNumber": "0123456789",
+//     "roles": "editor",
+//     "street": "achter",
+//     "city": "dorp"
+//   }
             })
                 .end((err, res) => {
-                    res.should.have.status(201);
+                    res.should.have.status(200);
                     res.should.be.an('object');
-                    res.body.should.be.an('object').that.has.all.keys('status', 'result');
+                    res.body.should.be.an('object').that.has.all.keys('status', 'message', 'result');
 
 
                     done();
