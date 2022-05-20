@@ -4,8 +4,15 @@ const dbconnection = require("../../database/dbConnection");
 const logger = require("../config/config").logger;
 const jwt = require("jsonwebtoken");
 
+
 let userController = {
+
+   test: (req,res) =>{
+    logger.debug("test");
+  },
+
   validateUser: (req, res, next) => {
+    logger.debug("starting validateUser");
     let user = req.body;
     const userId = req.params.userId;
     let {
@@ -55,6 +62,7 @@ let userController = {
 
   addUser: (req, res, next) => {
     let user = req.body;
+    logger.debug("starting addUser");
 
     dbconnection.getConnection(function (err, connection) {
       connection.query(
@@ -72,21 +80,23 @@ let userController = {
           user.roles,
         ],
         function (error, results, fields) {
+          logger.debug("starting d");
+          connection.release();
           if (error) {
-            logger.log(error);
+            logger.debug(error);
             const err = {
               status: 409,
               message: "Email not unique",
             };
-            connection.release();
+            
             next(err);
           } else {
-            logger.log("#result = " + results.length);
-            user.userId = results.insertId;
+            logger.debug("#result = " + results.length);
+            // user.userId = results.insertId;
             res.status(200).json({
               status: 200,
               message: "Succesfully added user to database",
-              result: user,
+              result: user,      
             });
           }
         }
@@ -207,7 +217,7 @@ let userController = {
           }
         }
       );
-    });
+    }); 
   },
 
   getUserById: (req, res, next) => {
@@ -244,7 +254,7 @@ let userController = {
     const auth = req.headers.authorization;
     const token = auth.substring(7, auth.length);
     const encodedLoad = jwt.decode(token);
-    let userId = encodedLoad.id;
+    let userId = encodedLoad.userId;
 
     dbconnection.getConnection(function (err, connection) {
       connection.query(

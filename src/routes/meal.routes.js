@@ -1,5 +1,5 @@
 const express = require("express");
-const { mealFinder } = require("../controllers/meal.controller");
+// const { mealFinder } = require("../controllers/meal.controller");
 const router = express.Router();
 const mealController = require("../controllers/meal.controller");
 const authController = require("../controllers/auth.controller");
@@ -26,11 +26,13 @@ router.delete(
   mealController.validateMealCreation,
   mealController.updateMealById
 );
-router.get(
+router.get( 
   "/api/meal/:mealId/participate",
   mealController.validateMealCreation,
   mealController.updateMealById
 );
+
+
 
 // router.put(
 //   "/api/user/:userId",
