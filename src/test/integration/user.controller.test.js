@@ -20,8 +20,8 @@ const invalidToken =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywi
 
 const CLEAR_DB = "DELETE IGNORE FROM `user`;"
 const ADD_USER = "INSERT INTO user " +
-"(firstName, lastName, street, isActive, city, password, emailAdress, phoneNumber, roles) " +
-"VALUES('Removable', 'man', 'behind', true, 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')"
+"(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
+"VALUES('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')"
 
 
 
@@ -40,7 +40,7 @@ const ADD_USER = "INSERT INTO user " +
 
 
 describe("Manage users /api/user", () => {
-  // describe("TC-201 Register as new user", () => {
+  describe("TC-201 Register as new user", () => {
     //
     // beforeEach((done) => {
     //   logger.debug("beforeEach called");
@@ -62,39 +62,6 @@ describe("Manage users /api/user", () => {
     //     );
     //   });
     // });
-
-    before((done) => {
-      logger.debug(
-          'before: hier zorg je eventueel dat de precondities correct zijn'
-      )
-      logger.debug('before done')
-      done()
-  })
-
-  describe('Manage users: /api/user', () => {
-      //
-      beforeEach((done) => {
-          logger.debug('beforeEach called')
-          // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-          database.getConnection(function (err, connection) {
-              if (err) throw err // not connected!
-
-              // Use the connection
-              connection.query(
-                  CLEAR_DB + ADD_USER,
-                  function (error, results, fields) {
-                      // When done with the connection, release it.
-                      connection.release()
-
-                      // Handle error after the release.
-                      if (error) throw error
-                      // Let op dat je done() pas aanroept als de query callback eindigt!
-                      logger.debug('beforeEach done')
-                      done()
-                  }
-              )
-          })
-      })
 
     it("201-1 Field missing or invalid", (done) => {
       chai
@@ -210,6 +177,28 @@ describe("Manage users /api/user", () => {
             });
         });
     });
+
+    it("", (done) => {
+      logger.debug("beforeEach called");
+      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
+      database.getConnection(function (err, connection) {
+
+        // Use the connection
+        connection.query(
+          CLEAR_DB,
+          function (error, results, fields) {
+            // When done with the connection, release it.
+            connection.release();
+
+            // Handle error after the release.
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+            done();
+          }
+        );
+    });
+    });
+
     it("201-5 Succesfully added user", (done) => {
       chai
         .request(index)
