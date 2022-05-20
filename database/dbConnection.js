@@ -1,5 +1,5 @@
 require('dotenv').config()
-const mysql = require('mysql');
+const mysql = require('mysql12');
 const logger = require('../src/config/config').logger
 
 const pool = mysql.createPool({
