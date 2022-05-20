@@ -386,20 +386,20 @@ describe("Manage users /api/user", () => {
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
 
-        // Use the connection
-        connection.query(
-          CLEAR_DB + ADD_USER ,
-          function (error, results, fields) {
-            if (error) {
-              logger.warn(error);
-            }
+        // // Use the connection
+        // connection.query(
+        //    ADD_USER ,
+        //   function (error, results, fields) {
+        //     if (error) {
+        //       logger.warn(error);
+        //     }
 
-            // When done with the connection, release it.
+        //     // When done with the connection, release it.
   
 
-            // Handle error after the release.
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
+        //     // Handle error after the release.
+        //     // Let op dat je done() pas aanroept als de query callback eindigt!
+        //     logger.debug("beforeEach done");
             connection.query(
               GET_USER,
               function (error, results, fields) {
@@ -418,9 +418,9 @@ describe("Manage users /api/user", () => {
                 done();
               }
             );
-          }
+        //   }
           
-        );
+        // );
 
 
       });
