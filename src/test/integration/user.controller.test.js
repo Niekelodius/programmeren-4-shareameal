@@ -5,6 +5,10 @@ process.env.LOGLEVEL = "warn";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const database = require("../../../database/dbConnection");
+require('dotenv').config()
+const jwt = require('jsonwebtoken')
+const assert = require('assert')
+const { jwtSecretKey, logger } = require('../../../src/config/config')
 const index = require("../../../index");
 const { logger } = require("../../config/config");
 chai.should();
