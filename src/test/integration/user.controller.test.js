@@ -15,7 +15,7 @@ let userId;
 let validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTY1MzA1NDQwMiwiZXhwIjoxNjU0MDkxMjAyfQ.qjG8JF3E-usyhLJCg02mDoKmtO3V36dPUH4vgJxfCIA"
 const invalidToken =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU"
 
-const CLEAR_DB = "DELETE FROM `user` WHERE emailAdress = 'ng@avans.nl';"
+const CLEAR_DB = "DELETE IGNORE FROM `user`;"
 const ADD_USER = "INSERT INTO user " +
 "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
 "VALUES('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')"
