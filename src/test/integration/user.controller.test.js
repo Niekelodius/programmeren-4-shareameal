@@ -390,12 +390,23 @@ describe("Manage users /api/user", () => {
 
         // Use the connection
         connection.query(
-           CLEAR_DB + ADD_USER ,
-          function (error, results, fields) {
-            if (error) {
-              logger.warn(error);
-            }
+           CLEAR_DB + 'INSERT INTO `user` (firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
+           [
+            "Removeable",
+            "man",
+            "behind",
+            "you",
+            "D389!!ach", 
+            "goos@avans.nl",
+            "05322222222",
+            "editor",
+            1
 
+           ],
+
+          function (error, results) {
+
+        
             // When done with the connection, release it.
   
 
@@ -404,17 +415,15 @@ describe("Manage users /api/user", () => {
             logger.debug("beforeEach done");
 
           }
-          
+
         );
 
         connection.query(
           GET_USER,
-          function (error, results, fields) {
+          function (error, results) {
             // logger.warn("results: "+results[0].id);
             userId = results[0].id;
-            if (error) {
-              logger.warn(error);
-            }
+
             
             // When done with the connection, release it.
             connection.release();
@@ -546,7 +555,7 @@ describe("Manage users /api/user", () => {
  
           status.should.equals(200);
           message.should.be.an("object");
-          logger.warn(res.body);
+
           done();
         });
     });
