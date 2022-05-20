@@ -14,7 +14,7 @@ const res = require("express/lib/response");
 chai.should();
 chai.use(chaiHttp);
 
-let userId;
+let userId =5;
 
 let validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTY1MzA1NDQwMiwiZXhwIjoxNjU0MDkxMjAyfQ.qjG8JF3E-usyhLJCg02mDoKmtO3V36dPUH4vgJxfCIA"
 const invalidToken =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU"
@@ -390,19 +390,22 @@ describe("Manage users /api/user", () => {
 
         // Use the connection
         connection.query(
-           CLEAR_DB + 'INSERT INTO `user` (firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
-           [
-            "Removeable",
-            "man",
-            "behind",
-            "you",
-            "D389!!ach", 
-            "goos@avans.nl",
-            "05322222222",
-            "editor",
-            1
+           CLEAR_DB 
+          //  + 
+          //  'INSERT INTO `user` (firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
+          //  [
+          //   "Removeable",
+          //   "man",
+          //   "behind",
+          //   "you",
+          //   "D389!!ach", 
+          //   "goos@avans.nl",
+          //   "05322222222",
+          //   "editor",
+          //   1
 
-           ],
+          //  ]
+          ,
 
           function (error, results) {
 
