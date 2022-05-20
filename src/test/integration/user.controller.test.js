@@ -43,7 +43,6 @@ describe("Manage users /api/user", () => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
 
         // Use the connection
         connection.query(
@@ -208,7 +207,6 @@ describe("Manage users /api/user", () => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
 
         // Use the connection
         connection.query(
@@ -256,7 +254,6 @@ describe("Manage users /api/user", () => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
 
         // Use the connection
         connection.query(
@@ -312,7 +309,6 @@ describe("Manage users /api/user", () => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
 
         // Use the connection
         connection.query(
@@ -382,7 +378,6 @@ describe("Manage users /api/user", () => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
 
         // Use the connection
         connection.query(
@@ -538,7 +533,6 @@ describe("Manage users /api/user", () => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
 
         // Use the connection
         connection.query(
