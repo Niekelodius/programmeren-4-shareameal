@@ -42,29 +42,29 @@ const ADD_USER = "INSERT INTO user " +
 describe("Manage users /api/user", () => {
   describe("TC-201 Register as new user", () => {
     
-    // beforeEach((done) => {
-    //   logger.debug("beforeEach called");
-    //   // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
+    beforeEach((done) => {
+      logger.debug("beforeEach called");
+      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       
-    //   database.getConnection(function (err, connection) {
-    //     if (err) throw err
+      database.getConnection(function (err, connection) {
+        if (err) throw err
 
-    //     // Use the connection
-    //     connection.query(
-    //       CLEAR_DB,
-    //       function (error, results, fields) {
-    //         // When done with the connection, release it.
-    //         connection.release();
+        // Use the connection
+        connection.query(
+          CLEAR_DB,
+          function (error, results, fields) {
+            // When done with the connection, release it.
+            connection.release();
 
-    //         // Handle error after the release.
-    //         if (err) throw err
-    //         // Let op dat je done() pas aanroept als de query callback eindigt!
-    //         logger.debug("beforeEach done");
-    //         done();
-    //       }
-    //     );
-    //   });
-    // });
+            // Handle error after the release.
+            if (err) throw err
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+            done();
+          }
+        );
+      });
+    });
 
     it("201-1 Field missing or invalid", (done) => {
       chai
@@ -181,46 +181,7 @@ describe("Manage users /api/user", () => {
         });
     });
 
-    // it("", (done) => {
-    //   logger.debug("beforeEach called");
-    //   // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-    //   database.getConnection(function (err, connection) {
-
-    //     // Use the connection
-    //     connection.query(
-    //       CLEAR_DB,
-    //       function (error, results, fields) {
-    //         // When done with the connection, release it.
-    //         connection.release();
-
-    //         // Handle error after the release.
-    //         // Let op dat je done() pas aanroept als de query callback eindigt!
-    //         logger.debug("beforeEach done");
-    //         done();
-    //       }
-    //     );
-    // });
-    // });
-
     it("201-5 Succesfully added user", (done) => {
-      database.getConnection(function (err, connection) {
-        if (err) throw err
-
-        // Use the connection
-        connection.query(
-          CLEAR_DB,
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
-
-            // Handle error after the release.
-            if (err) throw err
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-
-          }
-        );
-      });
       chai
         .request(index)
         .post("/api/user")
@@ -427,7 +388,7 @@ describe("Manage users /api/user", () => {
 
         // Use the connection
         connection.query(
-          CLEAR_DB,
+          CLEAR_DB + ADD_USER,
           function (error, results, fields) {
             // When done with the connection, release it.
             connection.release();
@@ -443,11 +404,11 @@ describe("Manage users /api/user", () => {
     it("205-1 missing field emailAdress", (done) => {
       chai
         .request(index)
-        .put("/api/user/3")
+        .put("/api/user/1")
         .auth(validToken, {type: 'bearer'})
         .send({
 
-            id: 3,
+            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -470,11 +431,11 @@ describe("Manage users /api/user", () => {
     it("205-3 invalid password", (done) => {
       chai
         .request(index)
-        .put("/api/user/3")
+        .put("/api/user/1")
         .auth(validToken, {type: 'bearer'})
         .send({
 
-            id: 3,
+            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -500,7 +461,7 @@ describe("Manage users /api/user", () => {
         .auth(validToken, {type: 'bearer'})
         .send({
 
-            id: 3,
+            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -524,10 +485,10 @@ describe("Manage users /api/user", () => {
     it("205-5 Not logged in", (done) => {
       chai
         .request(index)
-        .put("/api/user/3")
+        .put("/api/user/1")
         .send({
 
-            id: 3,
+            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -548,11 +509,11 @@ describe("Manage users /api/user", () => {
     it("205-6 Succesfully edited user", (done) => {
       chai
         .request(index)
-        .put("/api/user/3")
+        .put("/api/user/1")
         .auth(validToken, {type: 'bearer'})
         .send({
 
-            id: 3,
+            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -566,6 +527,7 @@ describe("Manage users /api/user", () => {
         })
         .end((req, res) => {
           let { status, message } = res.body;
+ 
           status.should.equals(200);
           message.should.be.an("object");
           done();
