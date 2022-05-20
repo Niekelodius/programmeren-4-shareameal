@@ -390,33 +390,40 @@ describe("Manage users /api/user", () => {
 
         // Use the connection
         connection.query(
-          CLEAR_DB + ADD_USER,
+          CLEAR_DB + ADD_USER ,
           function (error, results, fields) {
-            
+            if (error) {
+              logger.warn(error);
+            }
+
             // When done with the connection, release it.
   
 
             // Handle error after the release.
             // Let op dat je done() pas aanroept als de query callback eindigt!
             logger.debug("beforeEach done");
-
+            connection.query(
+              GET_USER,
+              function (error, results, fields) {
+                logger.warn("results: "+results[0].id);
+                userId = results[0].id;
+                if (error) {
+                  logger.warn(error);
+                }
+                
+                // When done with the connection, release it.
+                connection.release();
+    
+                // Handle error after the release.
+                // Let op dat je done() pas aanroept als de query callback eindigt!
+                logger.debug("beforeEach done");
+                done();
+              }
+            );
           }
+          
         );
-        connection.query(
-          GET_USER,
-          function (error, results, fields) {
-            logger.warn("results: "+results[0].id);
-            userId = results[0].id;
-            
-            // When done with the connection, release it.
-            connection.release();
 
-            // Handle error after the release.
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-            done();
-          }
-        );
 
       });
     });
@@ -539,6 +546,7 @@ describe("Manage users /api/user", () => {
  
           status.should.equals(200);
           message.should.be.an("object");
+          logger.warn(res.body);
           done();
         });
     });
