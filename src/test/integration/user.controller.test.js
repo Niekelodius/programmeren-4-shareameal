@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken')
 const assert = require('assert')
 const { jwtSecretKey, logger } = require('../../../src/config/config')
 const index = require("../../../index");
+const res = require("express/lib/response");
 chai.should();
 chai.use(chaiHttp);
 
@@ -19,6 +20,7 @@ let validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6M
 const invalidToken =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU"
 
 const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'ng@avans.nl';"
+const GET_USER = "SELECT id FROM `user` WHERE emailAdress = 'goos@avans.nl';"
 const ADD_USER = "INSERT INTO user " +
 "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
 "VALUES('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')"
@@ -390,6 +392,22 @@ describe("Manage users /api/user", () => {
         connection.query(
           CLEAR_DB + ADD_USER,
           function (error, results, fields) {
+            
+            // When done with the connection, release it.
+  
+
+            // Handle error after the release.
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+
+          }
+        );
+        connection.query(
+          GET_USER,
+          function (error, results, fields) {
+            logger.warn("results: "+results[0].id);
+            userId = results[0].id;
+            
             // When done with the connection, release it.
             connection.release();
 
@@ -399,6 +417,7 @@ describe("Manage users /api/user", () => {
             done();
           }
         );
+
       });
     });
     it("205-1 missing field emailAdress", (done) => {
@@ -509,20 +528,20 @@ describe("Manage users /api/user", () => {
     it("205-6 Succesfully edited user", (done) => {
       chai
         .request(index)
-        .put("/api/user/1")
+        .put("/api/user/"+userId)
         .auth(validToken, {type: 'bearer'})
         .send({
 
             id: 1,
-            firstName: "Herman",
-            lastName: "Huizinga",
+            firstName: "Removable",
+            lastName: "man",
             isActive: 1,
-            emailAdress: "h.huizinga@server.nl",
+            emailAdress: "goos@avans.nl",
             password: "D1mD29!!df",
-            phoneNumber: "06-12345678",
+            phoneNumber: "05322222222",
             roles: "editor,guest",
-            street: "",
-            city: ""
+            street: "behind",
+            city: "you"
 
         })
         .end((req, res) => {
