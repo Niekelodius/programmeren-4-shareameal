@@ -21,7 +21,9 @@ const invalidToken =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywi
 
 const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'ng@avans.nl';"
 const GET_USER = "SELECT id FROM `user` WHERE emailAdress = 'goos@avans.nl';"
-const ADD_USER = "INSERT INTO user (firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) VALUES('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')"
+const ADD_USER = "INSERT INTO `user`" +  
+"(`firstName`, `lastName`, `street`, `city`, `password`, `emailAdress`, `phoneNumber`,`roles` )" + 
+"VALUES ('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor');  "
 
 
 
@@ -386,43 +388,43 @@ describe("Manage users /api/user", () => {
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
 
-        // // Use the connection
-        // connection.query(
-        //    ADD_USER ,
-        //   function (error, results, fields) {
-        //     if (error) {
-        //       logger.warn(error);
-        //     }
+        // Use the connection
+        connection.query(
+           CLEAR_DB + ADD_USER ,
+          function (error, results, fields) {
+            if (error) {
+              logger.warn(error);
+            }
 
-        //     // When done with the connection, release it.
+            // When done with the connection, release it.
   
 
-        //     // Handle error after the release.
-        //     // Let op dat je done() pas aanroept als de query callback eindigt!
-        //     logger.debug("beforeEach done");
-            connection.query(
-              GET_USER,
-              function (error, results, fields) {
-                logger.warn("results: "+results[0].id);
-                userId = results[0].id;
-                if (error) {
-                  logger.warn(error);
-                }
-                
-                // When done with the connection, release it.
-                connection.release();
-    
-                // Handle error after the release.
-                // Let op dat je done() pas aanroept als de query callback eindigt!
-                logger.debug("beforeEach done");
-                done();
-              }
-            );
-        //   }
+            // Handle error after the release.
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+
+          }
           
-        // );
+        );
 
+        connection.query(
+          GET_USER,
+          function (error, results, fields) {
+            // logger.warn("results: "+results[0].id);
+            userId = results[0].id;
+            if (error) {
+              logger.warn(error);
+            }
+            
+            // When done with the connection, release it.
+            connection.release();
 
+            // Handle error after the release.
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+            done();
+          }
+        );
       });
     });
     it("205-1 missing field emailAdress", (done) => {
