@@ -1,4 +1,4 @@
-process.env.DATABASE = process.env.DATABASE || "testdb";
+process.env.DATABASE = process.env.DATABASE || "share-a-meal";
 process.env.LOGLEVEL = "warn";
 
 
