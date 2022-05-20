@@ -21,9 +21,7 @@ const invalidToken =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywi
 
 const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'ng@avans.nl';"
 const GET_USER = "SELECT id FROM `user` WHERE emailAdress = 'goos@avans.nl';"
-const ADD_USER = "INSERT INTO user " +
-"(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
-"VALUES('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')"
+const ADD_USER = "INSERT INTO user (firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) VALUES('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')"
 
 
 
