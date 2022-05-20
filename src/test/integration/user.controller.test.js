@@ -212,7 +212,7 @@ describe("Manage users /api/user", () => {
 
   describe("TC-202 Overview of all users", () => {
     //
-    afterEach((done) => {
+    beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
@@ -259,7 +259,7 @@ describe("Manage users /api/user", () => {
   });
   describe("TC-203 Request userprofile", () => {
     //
-    afterEach((done) => {
+    beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
@@ -314,7 +314,7 @@ describe("Manage users /api/user", () => {
 
   describe("TC-204 User details", () => {
     //
-    afterEach((done) => {
+    beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
@@ -383,7 +383,7 @@ describe("Manage users /api/user", () => {
 
   describe("TC-205 Edit user", () => {
     //
-    afterEach((done) => {
+    beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
@@ -423,11 +423,9 @@ describe("Manage users /api/user", () => {
     it("205-1 missing field emailAdress", (done) => {
       chai
         .request(index)
-        .put("/api/user/1")
+        .put("/api/user/"+userId)
         .auth(validToken, {type: 'bearer'})
         .send({
-
-            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -450,11 +448,9 @@ describe("Manage users /api/user", () => {
     it("205-3 invalid password", (done) => {
       chai
         .request(index)
-        .put("/api/user/1")
+        .put("/api/user/"+userId)
         .auth(validToken, {type: 'bearer'})
         .send({
-
-            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -479,8 +475,6 @@ describe("Manage users /api/user", () => {
         .put("/api/user/300000")
         .auth(validToken, {type: 'bearer'})
         .send({
-
-            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -504,10 +498,8 @@ describe("Manage users /api/user", () => {
     it("205-5 Not logged in", (done) => {
       chai
         .request(index)
-        .put("/api/user/1")
+        .put("/api/user/"+userId)
         .send({
-
-            id: 1,
             firstName: "Herman",
             lastName: "Huizinga",
             isActive: 1,
@@ -531,8 +523,6 @@ describe("Manage users /api/user", () => {
         .put("/api/user/"+userId)
         .auth(validToken, {type: 'bearer'})
         .send({
-
-            id: 1,
             firstName: "Removable",
             lastName: "man",
             isActive: 1,
@@ -556,7 +546,7 @@ describe("Manage users /api/user", () => {
 
   describe("TC-206 Delete user", () => {
     //
-    afterEach((done) => {
+    beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
