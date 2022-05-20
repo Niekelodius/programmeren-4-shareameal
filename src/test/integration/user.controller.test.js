@@ -10,7 +10,6 @@ const jwt = require('jsonwebtoken')
 const assert = require('assert')
 const { jwtSecretKey, logger } = require('../../../src/config/config')
 const index = require("../../../index");
-const { logger } = require("../../config/config");
 chai.should();
 chai.use(chaiHttp);
 
