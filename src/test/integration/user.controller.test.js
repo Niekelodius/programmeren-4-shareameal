@@ -53,7 +53,6 @@ describe("Manage users /api/user", () => {
             connection.release();
 
             // Handle error after the release.
-            if (error) throw error;
             // Let op dat je done() pas aanroept als de query callback eindigt!
             logger.debug("beforeEach done");
             done();
@@ -219,7 +218,6 @@ describe("Manage users /api/user", () => {
             connection.release();
 
             // Handle error after the release.
-            if (error) throw error;
             // Let op dat je done() pas aanroept als de query callback eindigt!
             logger.debug("beforeEach done");
             done();
@@ -268,7 +266,6 @@ describe("Manage users /api/user", () => {
             connection.release();
 
             // Handle error after the release.
-            if (error) throw error;
             // Let op dat je done() pas aanroept als de query callback eindigt!
             logger.debug("beforeEach done");
             done();
@@ -325,7 +322,6 @@ describe("Manage users /api/user", () => {
             connection.release();
 
             // Handle error after the release.
-            if (error) throw error;
             // Let op dat je done() pas aanroept als de query callback eindigt!
             logger.debug("beforeEach done");
             done();
@@ -396,7 +392,6 @@ describe("Manage users /api/user", () => {
             connection.release();
 
             // Handle error after the release.
-            if (error) throw error;
             // Let op dat je done() pas aanroept als de query callback eindigt!
             logger.debug("beforeEach done");
             done();
