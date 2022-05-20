@@ -49,7 +49,7 @@ describe("Manage users /api/user", () => {
 
         // Use the connection
         connection.query(
-          CLEAR_DB,
+          CLEAR_DB + ADD_USER,
           function (error, results, fields) {
             // When done with the connection, release it.
             connection.release();
