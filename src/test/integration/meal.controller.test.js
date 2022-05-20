@@ -96,32 +96,32 @@ describe("Manage meals /api/meal", () => {
           done();
         });
     });
-    it("301-3 Maaltijd succesvol toegevoegd", (done) => {
-      chai
-        .request(index)
-        .post("/api/meal")
-        .auth(validToken, { type: "bearer" })
-        .send({
-          name: "Frietje",
-          description: "Friet met mayo",
-          isActive: true,
-          isVega: false,
-          isVegan: true,
-          isToTakeHome: true,
-          maxAmountOfParticipants: 5,
-          price: 5.99,
-          dateTime: "2022-08-23",
-          imageUrl: "https://imgur.com/a/0WO84",
-          allergenes: "aardappel",
-        })
-        .end((req, res) => {
-          res.should.be.an("object");
-          let { status, result } = res.body;
-          status.should.equals(201);
-          result.should.be.an("object");
-          done();
-        });
-    });
+    // it("301-3 Maaltijd succesvol toegevoegd", (done) => {
+    //   chai
+    //     .request(index)
+    //     .post("/api/meal")
+    //     .auth(validToken, { type: "bearer" })
+    //     .send({
+    //       name: "Frietje",
+    //       description: "Friet met mayo",
+    //       isActive: true,
+    //       isVega: false,
+    //       isVegan: true,
+    //       isToTakeHome: true,
+    //       maxAmountOfParticipants: 5,
+    //       price: 5.99,
+    //       dateTime: "2022-08-23",
+    //       imageUrl: "https://imgur.com/a/0WO84",
+    //       allergenes: "aardappel",
+    //     })
+    //     .end((req, res) => {
+    //       res.should.be.an("object");
+    //       let { status, result } = res.body;
+    //       status.should.equals(201);
+    //       result.should.be.an("object");
+    //       done();
+    //     });
+    // });
   });
 
   describe("TC-302 Maaltijd wijzigen", () => {
