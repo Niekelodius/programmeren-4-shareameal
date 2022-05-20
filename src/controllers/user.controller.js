@@ -34,6 +34,8 @@ let userController = {
       assert(typeof street === "string", "street must be a string");
       assert(typeof city === "string", "city must be a string");
       assert(typeof phoneNumber === "string", "phoneNumber must be a string");
+      assert(emailAdress.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/), "invalid email");
+      assert(password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/), "invalid password");
       next();
     } catch (err) {
       const error = {
@@ -126,15 +128,15 @@ let userController = {
           // connection.release();
           if (error) throw err;
 
-          if (results == 0) {
+          if (results.affectedRows == 0) {
             const error = {
-              status: 404,
+              status: 400,
               message: "User does not exist",
             };
             next(error);
           } else {
             res.status(200).json({
-              statusCode: 200,
+              status: 200,
               message: user,
             });
           }
@@ -269,7 +271,7 @@ let userController = {
           } else {
             const error = {
               status: 401,
-              message: "Forbidden",
+              message: "Invalid token",
             };
             next(error);
           }

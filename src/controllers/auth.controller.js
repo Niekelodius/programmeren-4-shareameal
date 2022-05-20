@@ -56,8 +56,8 @@ module.exports = {
                                             userinfo, token
                                         )
                                         res.status(200).json({ 
-                                            statusCode: 200,
-                                            results: { ...userinfo, token },
+                                            status: 200,
+                                            message: { ...userinfo, token },
                                         })
                                     }
                                 )
