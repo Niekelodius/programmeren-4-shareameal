@@ -1,5 +1,5 @@
 const assert = require("assert");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const jwt = require("jsonwebtoken");
 const dbconnection = require("../../database/dbConnection");
 const logger = require("../config/config").logger;
