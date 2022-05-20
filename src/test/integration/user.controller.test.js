@@ -42,27 +42,29 @@ const ADD_USER = "INSERT INTO user " +
 describe("Manage users /api/user", () => {
   describe("TC-201 Register as new user", () => {
     
-    beforeEach((done) => {
-      logger.debug("beforeEach called");
-      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
+    // beforeEach((done) => {
+    //   logger.debug("beforeEach called");
+    //   // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       
-      database.getConnection(function (err, connection) {
+    //   database.getConnection(function (err, connection) {
+    //     if (err) throw err
 
-        // Use the connection
-        connection.query(
-          CLEAR_DB,
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
+    //     // Use the connection
+    //     connection.query(
+    //       CLEAR_DB,
+    //       function (error, results, fields) {
+    //         // When done with the connection, release it.
+    //         connection.release();
 
-            // Handle error after the release.
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-            done();
-          }
-        );
-      });
-    });
+    //         // Handle error after the release.
+    //         if (err) throw err
+    //         // Let op dat je done() pas aanroept als de query callback eindigt!
+    //         logger.debug("beforeEach done");
+    //         done();
+    //       }
+    //     );
+    //   });
+    // });
 
     it("201-1 Field missing or invalid", (done) => {
       chai
@@ -201,6 +203,24 @@ describe("Manage users /api/user", () => {
     // });
 
     it("201-5 Succesfully added user", (done) => {
+      database.getConnection(function (err, connection) {
+        if (err) throw err
+
+        // Use the connection
+        connection.query(
+          CLEAR_DB,
+          function (error, results, fields) {
+            // When done with the connection, release it.
+            connection.release();
+
+            // Handle error after the release.
+            if (err) throw err
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+
+          }
+        );
+      });
       chai
         .request(index)
         .post("/api/user")
