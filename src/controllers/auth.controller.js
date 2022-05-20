@@ -65,7 +65,8 @@ module.exports = {
                                 logger.info(
                                     'User not found or password invalid'
                                 )
-                                res.status(401).json({
+                                res.status(404).json({
+                                    status: 404,
                                     message:
                                         'User not found or password invalid',
                                     datetime: new Date().toISOString(),
@@ -93,11 +94,14 @@ module.exports = {
                 'password must be a string.'
             )
             next()
-        } catch (ex) {
-            res.status(422).json({
-                error: ex.toString(),
-                datetime: new Date().toISOString(),
-            })
+        } catch (err) {
+            const error = {
+                status: 400,
+                message: err.message,
+              };
+              next(error);
+
+            
         }
     },
 

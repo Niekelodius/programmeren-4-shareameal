@@ -23,7 +23,7 @@ let mealController = {
 
     logger.debug(meal);
     try {
-      assert(typeof name == "string", "Name must be filled in or a string");
+      assert(typeof name == "string", "Name must be filled in and a string");
       assert(
         typeof description == "string",
         "Description must be filled in or a string"
@@ -71,8 +71,8 @@ let mealController = {
           // Don't use the connection here, it has been returned to the pool.
           logger.log("#result = " + results.length);
           res.status(200).json({
-            statusCode: 200,
-            message: results,
+            status: 200,
+            result: results,
           });
 
           // pool.end((err) => {
@@ -85,6 +85,7 @@ let mealController = {
 
   addMeal: (req, res, next) => {
     let meal = req.body;
+    logger.warn("test");
 
     //id is nog hardcoded fix dat
     //Receives payload from authorization with the token
@@ -148,9 +149,9 @@ let mealController = {
           } else {
             logger.debug("#result = " + results.length);
             // user.userId = results.insertId;
-            res.status(200).json({
-              status: 200,
-              message: meal,
+            res.status(201).json({
+              status: 201,
+              result: meal,
             });
           }
         }
@@ -192,7 +193,7 @@ let mealController = {
           if (error) throw err;
           // logger.log(error);
 
-          if (results == 0) {
+          if (results.affectedRows == 0) {
             const error = {
               status: 404,
               message: "Meal does not exist",
@@ -200,8 +201,8 @@ let mealController = {
             next(error);
           } else {
             res.status(200).json({
-              statusCode: 200,
-              message: meal,
+              status: 200,
+              result: meal,
             });
           }
           logger.log("#result = " + results.length);
@@ -210,7 +211,7 @@ let mealController = {
     });
   },
 
-  getMealById: (req, res) => {
+  getMealById: (req, res, next) => {
     const mealId = req.params.mealId;
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; 
@@ -223,7 +224,7 @@ let mealController = {
           if (results.length > 0) {
             res.status(200).json({
               statusCode: 200,
-              message: results,
+              result: results,
             });
           } else {
             const error = {
@@ -267,8 +268,8 @@ let mealController = {
           if (meal.length > 0) {
             logger.log("#result = " + results.length);
             res.status(200).json({
-              statusCode: 200,
-              message: meal,
+              status: 200,
+              result: meal,
             });
           } else {
             const error = {

@@ -1,31 +1,31 @@
 process.env.DATABASE = process.env.DATABASE || "share-a-meal";
 process.env.LOGLEVEL = "warn";
 
-
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const database = require("../../../database/dbConnection");
-require('dotenv').config()
-const jwt = require('jsonwebtoken')
-const assert = require('assert')
-const { jwtSecretKey, logger } = require('../../../src/config/config')
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const assert = require("assert");
+const { jwtSecretKey, logger } = require("../../../src/config/config");
 const index = require("../../../index");
 const res = require("express/lib/response");
 chai.should();
 chai.use(chaiHttp);
 
-let userId =5;
+let userId = 5;
 
-let validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTY1MzA1NDQwMiwiZXhwIjoxNjU0MDkxMjAyfQ.qjG8JF3E-usyhLJCg02mDoKmtO3V36dPUH4vgJxfCIA"
-const invalidToken =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU"
+let validToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTY1MzA1NDQwMiwiZXhwIjoxNjU0MDkxMjAyfQ.qjG8JF3E-usyhLJCg02mDoKmtO3V36dPUH4vgJxfCIA";
+const invalidToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU";
 
-const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'ng@avans.nl';"
-const GET_USER = "SELECT id FROM `user` WHERE emailAdress = 'goos@avans.nl';"
-const ADD_USER = "INSERT INTO `user`" +  
-"(`firstName`, `lastName`, `street`, `city`, `password`, `emailAdress`, `phoneNumber`,`roles` )" + 
-"VALUES ('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor');  "
-
-
+const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'ng@avans.nl';";
+const GET_USER = "SELECT id FROM `user` WHERE emailAdress = 'goos@avans.nl';";
+const ADD_USER =
+  "INSERT INTO `user`" +
+  "(`firstName`, `lastName`, `street`, `city`, `password`, `emailAdress`, `phoneNumber`,`roles` )" +
+  "VALUES ('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor');  ";
 
 // {
 //   "id": 3,
@@ -40,35 +40,30 @@ const ADD_USER = "INSERT INTO `user`" +
 //   "city": ""
 // }
 
-
 describe("Manage users /api/user", () => {
-  describe("TC-201 Register as new user", () => {
-    
+  describe("TC-201 Registreren als nieuwe gebruiker", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-      
+
       database.getConnection(function (err, connection) {
-        if (err) throw err
+        if (err) throw err;
 
         // Use the connection
-        connection.query(
-          CLEAR_DB,
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
+        connection.query(CLEAR_DB, function (error, results, fields) {
+          // When done with the connection, release it.
+          connection.release();
 
-            // Handle error after the release.
-            if (err) throw err
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-            done();
-          }
-        );
+          // Handle error after the release.
+          if (err) throw err;
+          // Let op dat je done() pas aanroept als de query callback eindigt!
+          logger.debug("beforeEach done");
+          done();
+        });
       });
     });
 
-    it("201-1 Field missing or invalid", (done) => {
+    it("201-1 Verplicht veld ontbreekt", (done) => {
       chai
         .request(index)
         .post("/api/user")
@@ -93,7 +88,7 @@ describe("Manage users /api/user", () => {
         });
     });
 
-    it("201-2 Email invalid, return valid error", (done) => {
+    it("201-2 Niet-valide email adres", (done) => {
       chai
         .request(index)
         .post("/api/user")
@@ -118,7 +113,7 @@ describe("Manage users /api/user", () => {
         });
     });
 
-    it("201-3 Password invalid, return valid error", (done) => {
+    it("201-3 Niet-valide wachtwoord", (done) => {
       chai
         .request(index)
         .post("/api/user")
@@ -142,7 +137,7 @@ describe("Manage users /api/user", () => {
         });
     });
 
-    it("201-4 User already exists", (done) => {
+    it("201-4 Gebruiker bestaat al", (done) => {
       chai
         .request(index)
         .post("/api/user")
@@ -183,7 +178,7 @@ describe("Manage users /api/user", () => {
         });
     });
 
-    it("201-5 Succesfully added user", (done) => {
+    it("201-5 Gebruiker succesvol geregistreerd", (done) => {
       chai
         .request(index)
         .post("/api/user")
@@ -210,94 +205,85 @@ describe("Manage users /api/user", () => {
     });
   });
 
-  describe("TC-202 Overview of all users", () => {
+  describe("TC-202 Overzicht van gebruikers", () => {
     //
     beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-
         // Use the connection
-        connection.query(
-          CLEAR_DB,
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
+        connection.query(CLEAR_DB, function (error, results, fields) {
+          // When done with the connection, release it.
+          connection.release();
 
-            // Handle error after the release.
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-            done();
-          }
-        );
+          // Handle error after the release.
+          // Let op dat je done() pas aanroept als de query callback eindigt!
+          logger.debug("beforeEach done");
+          done();
+        });
       });
     });
 
-    it("202-1 Don't show any users", (done) => {
+    it("202-1 Toon nul gebruikers", (done) => {
       chai
         .request(index)
         .get("/api/user")
         .end((req, res) => {
-          let { status, message } = res.body;
-          message.should.be.an('array')
+          let { status, result } = res.body;
+          result.should.be.an("array");
           // .that.equals("[]");
           done();
         });
     });
 
-    it("202-2 Show 2 users", (done) => {
+    it("202-2 Toon twee gebruikers", (done) => {
       chai
         .request(index)
         .get("/api/user")
         .end((req, res) => {
-          let { status, message } = res.body;
-          message.should.be.an('array')
+          let { status, result } = res.body;
+          result.should.be.an("array");
           // .that.equals("[]");
           done();
         });
     });
   });
-  describe("TC-203 Request userprofile", () => {
+  describe("TC-203 Gebruikersprofiel opvragen", () => {
     //
     beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-
         // Use the connection
-        connection.query(
-          CLEAR_DB,
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
+        connection.query(CLEAR_DB, function (error, results, fields) {
+          // When done with the connection, release it.
+          connection.release();
 
-            // Handle error after the release.
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-            done();
-          }
-        );
+          // Handle error after the release.
+          // Let op dat je done() pas aanroept als de query callback eindigt!
+          logger.debug("beforeEach done");
+          done();
+        });
       });
     });
-    it("203-1 invalid token", (done) => {
+    it("203-1 Ongeldige token", (done) => {
       chai
         .request(index)
         .get("/api/user/profile")
-        .auth(invalidToken, {type: 'bearer'})
+        .auth(invalidToken, { type: "bearer" })
         .end((req, res) => {
           let { status, message } = res.body;
           status.should.equals(401);
-          message.should.be.a("string")
-          .that.equals("Invalid token");
+          message.should.be.a("string").that.equals("Invalid token");
           done();
         });
     });
 
-    it("203-2 valid token and user exists", (done) => {
+    it("203-2 Valide token en gebruiker bestaat", (done) => {
       chai
         .request(index)
         .get("/api/user/profile")
-        .auth(validToken, {type: 'bearer'})
+        .auth(validToken, { type: "bearer" })
         .end((req, res) => {
           // let { status, message } = res.body;
           // status.should.equals(401);
@@ -306,39 +292,31 @@ describe("Manage users /api/user", () => {
           done();
         });
     });
-
-
-
   });
 
-
-  describe("TC-204 User details", () => {
+  describe("TC-204 Details van gebruiker", () => {
     //
     beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-
         // Use the connection
-        connection.query(
-          CLEAR_DB,
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
+        connection.query(CLEAR_DB, function (error, results, fields) {
+          // When done with the connection, release it.
+          connection.release();
 
-            // Handle error after the release.
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-            done();
-          }
-        );
+          // Handle error after the release.
+          // Let op dat je done() pas aanroept als de query callback eindigt!
+          logger.debug("beforeEach done");
+          done();
+        });
       });
     });
-    it("204-1 invalid token", (done) => {
+    it("204-1 Ongeldige token", (done) => {
       chai
         .request(index)
         .get("/api/user/2")
-        .auth(invalidToken, {type: 'bearer'})
+        .auth(invalidToken, { type: "bearer" })
         .end((req, res) => {
           let { status, message } = res.body;
           // status.should.equals(401);
@@ -348,40 +326,34 @@ describe("Manage users /api/user", () => {
         });
     });
 
-    it("204-2 valid token and user does not exist", (done) => {
+    it("204-2 Gebruiker-ID bestaat niet", (done) => {
       chai
         .request(index)
         .get("/api/user/9000")
-        .auth(validToken, {type: 'bearer'})
+        .auth(validToken, { type: "bearer" })
         .end((req, res) => {
           let { status, message } = res.body;
           status.should.equals(404);
-          message.should.be.a("string")
-          .that.equals("User does not exist");
+          message.should.be.a("string").that.equals("User does not exist");
           done();
         });
     });
 
-    it("204-3 valid token and user does exist", (done) => {
+    it("204-3 Gebruiker-ID bestaat", (done) => {
       chai
         .request(index)
         .get("/api/user/1")
-        .auth(validToken, {type: 'bearer'})
+        .auth(validToken, { type: "bearer" })
         .end((req, res) => {
-          let { status, message } = res.body;
+          let { status, result } = res.body;
           status.should.equals(200);
-          message.should.be.an("array");
+          result.should.be.an("array");
           done();
         });
     });
-
-    
-
-
-
   });
 
-  describe("TC-205 Edit user", () => {
+  describe("TC-205 Gebruiker wijzigen", () => {
     //
     // beforeEach((done) => {
     //   logger.debug("beforeEach called");
@@ -390,15 +362,15 @@ describe("Manage users /api/user", () => {
 
     //     // Use the connection
     //     connection.query(
-    //        CLEAR_DB 
-    //       //  + 
+    //        CLEAR_DB
+    //       //  +
     //       //  'INSERT INTO `user` (firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
     //       //  [
     //       //   "Removeable",
     //       //   "man",
     //       //   "behind",
     //       //   "you",
-    //       //   "D389!!ach", 
+    //       //   "D389!!ach",
     //       //   "goos@avans.nl",
     //       //   "05322222222",
     //       //   "editor",
@@ -409,9 +381,7 @@ describe("Manage users /api/user", () => {
 
     //       function (error, results) {
 
-        
     //         // When done with the connection, release it.
-  
 
     //         // Handle error after the release.
     //         // Let op dat je done() pas aanroept als de query callback eindigt!
@@ -427,7 +397,6 @@ describe("Manage users /api/user", () => {
     //     //     // logger.warn("results: "+results[0].id);
     //     //     userId = results[0].id;
 
-            
     //     //     // When done with the connection, release it.
     //     //     connection.release();
 
@@ -439,100 +408,99 @@ describe("Manage users /api/user", () => {
     //     // );
     //   });
     // });
-    it("205-1 missing field emailAdress", (done) => {
+    it("205-1 Verplicht veld emailAdress", (done) => {
       chai
         .request(index)
-        .put("/api/user/"+userId)
-        .auth(validToken, {type: 'bearer'})
+        .put("/api/user/" + userId)
+        .auth(validToken, { type: "bearer" })
         .send({
-            firstName: "Herman",
-            lastName: "Huizinga",
-            isActive: 1,
-            password: "secret",
-            phoneNumber: "06-12345678",
-            roles: "editor,guest",
-            street: "",
-            city: ""
-
+          firstName: "Herman",
+          lastName: "Huizinga",
+          isActive: 1,
+          password: "secret",
+          phoneNumber: "06-12345678",
+          roles: "editor,guest",
+          street: "",
+          city: "",
         })
         .end((req, res) => {
           let { status, message } = res.body;
           status.should.equals(400);
-          message.should.be.a("string")
-          .that.equals("emailAdress must be a string");
+          message.should.be
+            .a("string")
+            .that.equals("emailAdress must be a string");
           done();
         });
     });
 
-    it("205-3 invalid password", (done) => {
+    it("205-3 Niet-valide emailAdress", (done) => {
       chai
         .request(index)
-        .put("/api/user/"+userId)
-        .auth(validToken, {type: 'bearer'})
+        .put("/api/user/" + userId)
+        .auth(validToken, { type: "bearer" })
         .send({
-            firstName: "Herman",
-            lastName: "Huizinga",
-            isActive: 1,
-            password: "secret",
-            phoneNumber: "06-12345678",
-            roles: "editor,guest",
-            street: "",
-            city: ""
-
+          firstName: "Herman",
+          lastName: "Huizinga",
+          isActive: 1,
+          password: "secret",
+          phoneNumber: "06-12345678",
+          roles: "editor,guest",
+          street: "",
+          city: "",
         })
         .end((req, res) => {
           let { status, message } = res.body;
           status.should.equals(400);
-          message.should.be.a("string")
-          .that.equals("emailAdress must be a string");
+          message.should.be
+            .a("string")
+            .that.equals("emailAdress must be a string");
           done();
         });
     });
-    it("205-4 user does not exist", (done) => {
+    it("205-4 Gebruiker bestaat niet", (done) => {
       chai
         .request(index)
         .put("/api/user/300000")
-        .auth(validToken, {type: 'bearer'})
+        .auth(validToken, { type: "bearer" })
         .send({
-            firstName: "Herman",
-            lastName: "Huizinga",
-            isActive: 1,
-            emailAdress: "h.huizinga@server.nl",
-            password: "D1mD29!!df",
-            phoneNumber: "06-12345678",
-            roles: "editor,guest",
-            street: "",
-            city: ""
-
+          firstName: "Herman",
+          lastName: "Huizinga",
+          isActive: 1,
+          emailAdress: "h.huizinga@server.nl",
+          password: "D1mD29!!df",
+          phoneNumber: "06-12345678",
+          roles: "editor,guest",
+          street: "",
+          city: "",
         })
         .end((req, res) => {
           let { status, message } = res.body;
           status.should.equals(400);
-          message.should.be.a("string")
-          .that.equals("User does not exist");
+          message.should.be.a("string").that.equals("User does not exist");
           done();
         });
     });
 
-    it("205-5 Not logged in", (done) => {
+    it("205-5 Niet ingelogd", (done) => {
       chai
         .request(index)
-        .put("/api/user/"+userId)
+        .put("/api/user/" + userId)
         .send({
-            firstName: "Herman",
-            lastName: "Huizinga",
-            isActive: 1,
-            emailAdress: "h.huizinga@server.nl",
-            password: "D1mD29!!df",
-            phoneNumber: "06-12345678",
-            roles: "editor,guest",
-            street: "",
-            city: ""
-
+          firstName: "Herman",
+          lastName: "Huizinga",
+          isActive: 1,
+          emailAdress: "h.huizinga@server.nl",
+          password: "D1mD29!!df",
+          phoneNumber: "06-12345678",
+          roles: "editor,guest",
+          street: "",
+          city: "",
         })
         .end((req, res) => {
-          let { error , status} = res.body;
-          error.should.be.a("string").that.equals("Authorization header missing!");
+          let { error, status } = res.body;
+          error.should.be
+            .a("string")
+            .that.equals("Authorization header missing!");
           done();
         });
     });
@@ -555,7 +523,7 @@ describe("Manage users /api/user", () => {
     //     })
     //     .end((req, res) => {
     //       let { status, message } = res.body;
- 
+
     //       status.should.equals(200);
     //       message.should.be.an("object");
 
@@ -564,87 +532,77 @@ describe("Manage users /api/user", () => {
     // });
   });
 
-  describe("TC-206 Delete user", () => {
+  describe("TC-206 Gebruiker verwijderen", () => {
     //
     beforeEach((done) => {
       logger.debug("beforeEach called");
       // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
       database.getConnection(function (err, connection) {
-
         // Use the connection
-        connection.query(
-          ADD_USER,
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
+        connection.query(ADD_USER, function (error, results, fields) {
+          // When done with the connection, release it.
+          connection.release();
 
-            // Handle error after the release.
+          // Handle error after the release.
 
-            // Let op dat je done() pas aanroept als de query callback eindigt!
-            logger.debug("beforeEach done");
-            done();
-          }
-        );
+          // Let op dat je done() pas aanroept als de query callback eindigt!
+          logger.debug("beforeEach done");
+          done();
+        });
       });
     });
-    it("206-1 User does not exist ", (done) => {
+    it("206-1 Gebruiker bestaat niet ", (done) => {
       chai
         .request(index)
         .delete("/api/user/300000")
-        .auth(validToken, {type: 'bearer'})
+        .auth(validToken, { type: "bearer" })
         .end((req, res) => {
           let { status, message } = res.body;
           status.should.equals(400);
-          message.should.be.a("string")
-          .that.equals("User does not exist");
+          message.should.be.a("string").that.equals("User does not exist");
           done();
         });
-
-      });
-
-      it("206-2 Not logged in ", (done) => {
-        chai
-          .request(index)
-          .delete("/api/user/4")
-
-          .end((req, res) => {
-            let { error , status} = res.body;
-            error.should.be.a("string").that.equals("Authorization header missing!");
-            done();
-          });
-  
-        });
-
-        // it("206-3 Actor is not the owner ", (done) => {
-        //   chai
-        //     .request(index)
-        //     .delete("/api/user/4")
-        //     .auth(validToken, {type: 'bearer'}) 
-        //     .end((req, res) => {
-        //       let { status, message } = res.body;
-        //   status.should.equals(400);
-        //   message.should.be.a("string")
-        //   .that.equals("User does not exist");
-        //   done();
-        //     }); 
-        //   });
-
-
-        // it("206-4 Succesfully deleted user ", (done) => {
-        //   chai
-        //     .request(index)
-        //     .delete("/api/user/4")
-  
-        //     .end((req, res) => {
-        //       let { error , status} = res.body;
-        //       error.should.be.a("string").that.equals("Authorization header missing!");
-        //       done();
-        //     });
-    
-        //   });
-
     });
-    
 
+    it("206-2 Niet ingelogd ", (done) => {
+      chai
+        .request(index)
+        .delete("/api/user/4")
 
+        .end((req, res) => {
+          let { error, status } = res.body;
+          error.should.be
+            .a("string")
+            .that.equals("Authorization header missing!");
+          done();
+        });
+    });
+
+    // it("206-3 Actor is not the owner ", (done) => {
+    //   chai
+    //     .request(index)
+    //     .delete("/api/user/4")
+    //     .auth(validToken, {type: 'bearer'})
+    //     .end((req, res) => {
+    //       let { status, message } = res.body;
+    //   status.should.equals(400);
+    //   message.should.be.a("string")
+    //   .that.equals("User does not exist");
+    //   done();
+    //     });
+    //   });
+
+    // it("206-4 Succesfully deleted user ", (done) => {
+    //   chai
+    //     .request(index)
+    //     .delete("/api/user/4")
+
+    //     .end((req, res) => {
+    //       let { error , status} = res.body;
+    //       error.should.be.a("string").that.equals("Authorization header missing!");
+    //       done();
+    //     });
+
+    //   });
+  });
 });

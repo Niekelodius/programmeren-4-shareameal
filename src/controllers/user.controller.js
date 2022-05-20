@@ -137,7 +137,7 @@ let userController = {
           } else {
             res.status(200).json({
               status: 200,
-              message: user,
+              result: user,
             });
           }
 
@@ -168,7 +168,7 @@ let userController = {
           logger.log("#result = " + results.length);
           res.status(200).json({
             statusCode: 200,
-            message: results,
+            result: results,
           });
 
           // pool.end((err) => {
@@ -208,7 +208,7 @@ let userController = {
             logger.log("#result = " + results.length);
             res.status(200).json({
               statusCode: 200,
-              message: user,
+              result: user,
             });
           } else {
             const error = {
@@ -232,7 +232,7 @@ let userController = {
           if (results.length > 0) {
             res.status(200).json({
               status: 200,
-              message: results,
+              result: results,
             });
           } else {
             const error = {
@@ -266,7 +266,7 @@ let userController = {
           if (results.length > 0) {
             res.status(200).json({
               status: 201,
-              message: results,
+              result: results,
             });
           } else {
             const error = {
