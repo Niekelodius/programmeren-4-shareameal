@@ -112,14 +112,14 @@ let userController = {
 
     dbconnection.getConnection(function (err, connection) {
       connection.query(
-        "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, emailAdress = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
+        "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
         [
           user.firstName,
           user.lastName,
           user.street,
           user.city,
           user.password,
-          user.emailAdress,
+
           user.phoneNumber,
           user.roles,
           userId,
