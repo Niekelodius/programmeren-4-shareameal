@@ -1,4 +1,4 @@
-process.env.DATABASE = process.env.DATABASE || "share-a-meal";
+// process.env.DATABASE = process.env.DATABASE || "share-a-meal";
 process.env.LOGLEVEL = "warn";
 
 const chai = require("chai");
@@ -354,60 +354,54 @@ describe("Manage users /api/user", () => {
   });
 
   describe("TC-205 Gebruiker wijzigen", () => {
-    //
-    // beforeEach((done) => {
-    //   logger.debug("beforeEach called");
-    //   // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-    //   database.getConnection(function (err, connection) {
+    
+    beforeEach((done) => {
+      logger.debug("beforeEach called");
+      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
+      database.getConnection(function (err, connection) {
 
-    //     // Use the connection
-    //     connection.query(
-    //        CLEAR_DB
-    //       //  +
-    //       //  'INSERT INTO `user` (firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
-    //       //  [
-    //       //   "Removeable",
-    //       //   "man",
-    //       //   "behind",
-    //       //   "you",
-    //       //   "D389!!ach",
-    //       //   "goos@avans.nl",
-    //       //   "05322222222",
-    //       //   "editor",
-    //       //   1
+        // Use the connection
+        connection.query(
+           CLEAR_DB
+           +
+           'INSERT INTO `user` (firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
+           [
+            "Removeable",
+            "man",
+            "behind",
+            "you",
+            "D389!!ach",
+            "goos@avans.nl",
+            "05322222222",
+            "editor",
+            1
 
-    //       //  ]
-    //       ,
+           ]
+          ,
+          function (error, results) {
+            // When done with the connection, release it.
+            // Handle error after the release.
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+          }
+        );
+        connection.query(
+          GET_USER,
+          function (error, results) {
+            // logger.warn("results: "+results[0].id);
+            userId = results[0].id;
 
-    //       function (error, results) {
+            // When done with the connection, release it.
+            connection.release();
 
-    //         // When done with the connection, release it.
-
-    //         // Handle error after the release.
-    //         // Let op dat je done() pas aanroept als de query callback eindigt!
-    //         logger.debug("beforeEach done");
-
-    //       }
-
-    //     );
-
-    //     // connection.query(
-    //     //   GET_USER,
-    //     //   function (error, results) {
-    //     //     // logger.warn("results: "+results[0].id);
-    //     //     userId = results[0].id;
-
-    //     //     // When done with the connection, release it.
-    //     //     connection.release();
-
-    //     //     // Handle error after the release.
-    //     //     // Let op dat je done() pas aanroept als de query callback eindigt!
-    //     //     logger.debug("beforeEach done");
-    //         done();
-    //     //   }
-    //     // );
-    //   });
-    // });
+            // Handle error after the release.
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+            done();
+          }
+        );
+      });
+    });
     it("205-1 Verplicht veld emailAdress", (done) => {
       chai
         .request(index)
@@ -504,32 +498,32 @@ describe("Manage users /api/user", () => {
           done();
         });
     });
-    // it("205-6 Succesfully edited user", (done) => {
-    //   chai
-    //     .request(index)
-    //     .put("/api/user/"+userId)
-    //     .auth(validToken, {type: 'bearer'})
-    //     .send({
-    //         firstName: "Removable",
-    //         lastName: "man",
-    //         isActive: 1,
-    //         emailAdress: "goos@avans.nl",
-    //         password: "D1mD29!!df",
-    //         phoneNumber: "05322222222",
-    //         roles: "editor,guest",
-    //         street: "behind",
-    //         city: "you"
+    it("205-6 Succesfully edited user", (done) => {
+      chai
+        .request(index)
+        .put("/api/user/"+userId)
+        .auth(validToken, {type: 'bearer'})
+        .send({
+            firstName: "Removable",
+            lastName: "man",
+            isActive: 1,
+            emailAdress: "goos@avans.nl",
+            password: "D1mD29!!df",
+            phoneNumber: "05322222222",
+            roles: "editor,guest",
+            street: "behind",
+            city: "you"
 
-    //     })
-    //     .end((req, res) => {
-    //       let { status, message } = res.body;
+        })
+        .end((req, res) => {
+          let { status, result } = res.body;
 
-    //       status.should.equals(200);
-    //       message.should.be.an("object");
+          status.should.equals(200);
+          result.should.be.an("object");
 
-    //       done();
-    //     });
-    // });
+          done();
+        });
+    });
   });
 
   describe("TC-206 Gebruiker verwijderen", () => {
