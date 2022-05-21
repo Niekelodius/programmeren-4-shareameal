@@ -364,8 +364,9 @@ describe("Manage users /api/user", () => {
         connection.query(
            CLEAR_DB
            +
-           'INSERT INTO `user` (firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
+           'INSERT INTO `user` (id, firstName, lastName, street, city, password, emailAdress, phoneNumber,roles, isActive) VALUES(?, ?,?, ?,?, ?,?, ?, ?);  ' ,
            [
+             5,
             "Removeable",
             "man",
             "behind",
