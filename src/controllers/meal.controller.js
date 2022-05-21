@@ -2,6 +2,7 @@ const assert = require("assert");
 const mysql = require("mysql2");
 const jwt = require("jsonwebtoken");
 const dbconnection = require("../../database/dbConnection");
+const { type } = require("express/lib/response");
 const logger = require("../config/config").logger;
 
 let mealController = {
@@ -19,6 +20,7 @@ let mealController = {
       imageUrl,
       maxAmountOfParticipants,
       price,
+      allergenes,
     } = meal;
 
     logger.debug(meal);
@@ -34,6 +36,8 @@ let mealController = {
       assert(typeof isToTakeHome == "boolean", "must be a boolean value");
       assert(typeof dateTime == "string", "Must be filled in");
       assert(typeof imageUrl == "string", "Must have a image url");
+      assert(typeof allergenes == "object", "Must be an array");
+
       //assert(typeof allergenes == '')
       assert(
         typeof maxAmountOfParticipants == "number",
@@ -70,6 +74,7 @@ let mealController = {
 
           // Don't use the connection here, it has been returned to the pool.
           logger.log("#result = " + results.length);
+          logger.debug(results)
           res.status(200).json({
             status: 200,
             result: results,
@@ -98,39 +103,27 @@ let mealController = {
     meal.isVega = fnConvertBooleanToNumber(meal.isVega);
     meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
     meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
-    // meal.allergenes = meal.allergenes.join();
+
+    meal.allergenes = meal.allergenes.toString();
 
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
-      //   connection.query(
-      //     `INSERT INTO meal ( name, description, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, cookId, allergenes ) VALUES (${mysql.escape(
-      //       meal.name
-      //     )}, ${mysql.escape(meal.description)}, ${mysql.escape(meal.isActive)},
-      //         ${mysql.escape(meal.isVegan)}, ${mysql.escape(
-      //       meal.isToTakeHome
-      //     )}, ${mysql.escape(meal.dateTime)}, ${mysql.escape(
-      //       meal.maxAmountOfParticipants
-      //     )},  ${mysql.escape(meal.price)}, ${mysql.escape(
-      //       meal.price
-      //     )},${mysql.escape(meal.imageUrl)}, ${mysql.escape(
-      //       meal.cookId
-      //     )},${mysql.escape(meal.allergenes)} );`,
 
       connection.query(
         "INSERT INTO meal " +
-          "(name, description, isVega, isVegan, isToTakeHome, dateTime, imageUrl, allergenes, maxAmountOfParticipants, price, cookId) " +
+          "(name, description, isVega, isVegan, isToTakeHome, dateTime, imageUrl, maxAmountOfParticipants, price, allergenes, cookId) " +
           "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
-          meal.name,
+          meal.name, 
           meal.description,
           meal.isVega,
           meal.isVegan,
           meal.isToTakeHome,
           meal.dateTime,
           meal.imageUrl,
-          meal.allergenes,
           meal.maxAmountOfParticipants,
           meal.price,
+          meal.allergenes,
           cookId,
         ],
         function (error, results, fields) {
@@ -140,15 +133,11 @@ let mealController = {
               status: 409,
               message: "Could not add meal",
             };
-            // res.status(409).json({
-            //     status: 409,
-            //     message: "Email not unique"
-            // })
             connection.release();
             next(err);
           } else {
             logger.debug("#result = " + results.length);
-            // user.userId = results.insertId;
+            meal.id = results.insertId
             res.status(201).json({
               status: 201,
               result: meal,
@@ -164,12 +153,10 @@ let mealController = {
     let meal = req.body;
     const currentId = req.params.mealId;
 
-
     meal.isActive = fnConvertBooleanToNumber(meal.isActive);
     meal.isVega = fnConvertBooleanToNumber(meal.isVega);
     meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
     meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
-
 
     //Search for current meal
     dbconnection.getConnection(function (err, connection) {
@@ -189,7 +176,7 @@ let mealController = {
           meal.price,
           currentId,
         ],
-        function (error, results, fields){
+        function (error, results, fields) {
           if (error) throw err;
           // logger.log(error);
 
@@ -200,6 +187,7 @@ let mealController = {
             };
             next(error);
           } else {
+
             res.status(200).json({
               status: 200,
               result: meal,
@@ -214,7 +202,7 @@ let mealController = {
   getMealById: (req, res, next) => {
     const mealId = req.params.mealId;
     dbconnection.getConnection(function (err, connection) {
-      if (err) throw err; 
+      if (err) throw err;
       connection.query(
         `SELECT * FROM meal WHERE id = ${mealId};`,
         function (error, results, fields) {
@@ -222,6 +210,7 @@ let mealController = {
           if (error) throw error;
           logger.log("#result = " + results.length);
           if (results.length > 0) {
+            
             res.status(200).json({
               statusCode: 200,
               result: results,
@@ -233,12 +222,10 @@ let mealController = {
             };
             next(error);
           }
-
         }
       );
     });
   },
-
 
   deleteMeal: (req, res, next) => {
     const userId = req.params.mealId;
@@ -284,7 +271,6 @@ let mealController = {
   },
 };
 
-
 function fnConvertBooleanToNumber(inputBool) {
   if (inputBool) {
     return 1;
@@ -292,7 +278,5 @@ function fnConvertBooleanToNumber(inputBool) {
     return 0;
   }
 }
-
-
 
 module.exports = mealController;

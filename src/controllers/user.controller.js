@@ -94,7 +94,7 @@ let userController = {
             next(err);
           } else {
             logger.debug("#result = " + results.length);
-            // user.userId = results.insertId;
+            user.userId = results.insertId;
             res.status(200).json({
               status: 200,
               message: "Succesfully added user to database",
