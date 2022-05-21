@@ -22,10 +22,7 @@ const invalidToken =
 
 const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'ng@avans.nl'";
 const GET_USER = "SELECT id FROM `user` WHERE emailAdress = 'goos@avans.nl'";
-const ADD_USER =
-  "INSERT INTO `user`" +
-  "(`firstName`, `lastName`, `street`, `city`, `password`, `emailAdress`, `phoneNumber`,`roles` )" +
-  "VALUES ('Removable', 'man', 'behind', 'you', 'D389!!ach', 'goos@avans.nl', '05322222222', 'editor')  ";
+const ADD_USER = 'INSERT INTO user VALUES(123, "Voor", "Achter", 1, "goos@avans.nl", "123", "0651234567", "editor", "Niek", "G");';
 
 // {
 //   "id": 3,
@@ -370,7 +367,7 @@ describe("Manage users /api/user", () => {
       //   city: "dorp"
       // };
       database.getConnection(function (err, connection) {
-        connection.query('INSERT INTO user VALUES(123, "Voor", "Achter", 1, "goos@avans.nl", "123", "0651234567", "editor", "Niek", "G");', (err, result) => {
+        connection.query(ADD_USER, (err, result) => {
           connection.release();
       })
         connection.query(
