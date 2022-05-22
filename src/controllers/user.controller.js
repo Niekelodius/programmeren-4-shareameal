@@ -231,15 +231,29 @@ let userController = {
       connection.query(
         `SELECT roles FROM user WHERE id = ${editorId};`,
         function (error, results, fields) {
+          if (error) {
+            logger.error(error);
+          }
+          logger.debug("editor " + editorId + " user " + userId);
           logger.debug("roles" + results[0].roles);
-          if (!(editorId === userId || results[0].roles === "editor")) {
+          if (editorId != userId) {
+            logger.debug("wrong id")
+          }
+          if (results[0].roles != "editor") {
+            logger.debug("wrong role")
+          }
+          let role = "guest";
+          if (results[0].roles.indexOf("editor") !== -1) {
+            role = "editor";
+          }
+          if (editorId == userId || role == "editor") {
+            next();
+          } else {
             const err = {
               status: 403,
               message: "Unauthorized",
             };
             next(err);
-          } else {
-            next();
           }
         }
       );
