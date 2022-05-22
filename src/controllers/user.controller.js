@@ -236,14 +236,8 @@ let userController = {
           }
           logger.debug("editor " + editorId + " user " + userId);
           logger.debug("roles" + results[0].roles);
-          if (editorId != userId) {
-            logger.debug("wrong id")
-          }
-          if (results[0].roles != "editor") {
-            logger.debug("wrong role")
-          }
           let role = "guest";
-          if (results[0].roles.indexOf("editor") !== -1) {
+          if (results[0].roles.indexOf("editor" || "admin") !== -1) {
             role = "editor";
           }
           if (editorId == userId || role == "editor") {
