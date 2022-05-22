@@ -55,8 +55,8 @@ XAMPP was used to have an offline database while testing.
 
 ## Languages used
 
-.._ Javascript
-.._ mySQL
+⋅⋅* Javascript
+⋅⋅* mySQL
 
 # Deployment
 
@@ -87,4 +87,4 @@ My emailaddress is nca.goossens@student.avans.nl, however it is unlikely I will 
 
 ## Roadmap
 
-Development for this API will most likely stop on the 20th of may 2022.
+Development for this API will most likely stop on the 22th of may 2022.
