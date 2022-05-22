@@ -17,6 +17,7 @@ router.put(
   "/api/meal/:mealId",
   validateToken,
   mealController.validateMealCreation,
+  mealController.checkAuthority,
   mealController.updateMealById
 );
 router.get(
@@ -26,13 +27,10 @@ router.get(
 router.delete(
   "/api/meal/:mealId",
   validateToken,
+  mealController.checkAuthority,
   mealController.deleteMeal
 );
-router.get( 
-  "/api/meal/:mealId/participate",
-  mealController.validateMealCreation,
-  mealController.updateMealById
-);
+
 
 
 

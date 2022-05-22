@@ -3,6 +3,7 @@ const mysql = require("mysql2");
 const dbconnection = require("../../database/dbConnection");
 const logger = require("../config/config").logger;
 const jwt = require("jsonwebtoken");
+const { is } = require("express/lib/request");
 
 
 let userController = {
@@ -20,7 +21,6 @@ let userController = {
       lastName,
       street,
       city,
-      isActive,
       password,
       emailAdress,
       phoneNumber,
@@ -50,12 +50,31 @@ let userController = {
     const userId = req.params.userId;
     try {
       assert(Number.isInteger(parseInt(userId)), "Id must be a number");
+      dbconnection.getConnection(function (err, connection) {
+        if (err) throw err; // not connected!
+        connection.query(
+          `SELECT * FROM user WHERE id = ${userId};`,
+          function (err, results, fields) {
+            connection.release();
+            if (err) throw err;
+            user = results;
+            if (results.length < 1) {
+              const err = {
+                status: 404,
+                message: "User does not exist",
+              };
+            }
+          }
+        );
+      });
       next();
     } catch (err) {
       const error = {
         status: 400,
         message: err.message,
       };
+
+
 
       console.log(error);
       next(error);
@@ -128,10 +147,10 @@ let userController = {
           // connection.release();
           if (error) throw err;
 
-          if (results.affectedRows == 0) {
+          if (error) {
             const error = {
               status: 400,
-              message: "User does not exist",
+              message: error.message,
             };
             next(error);
           } else {
@@ -150,13 +169,39 @@ let userController = {
 
 
   getAllUsers: (req, res) => {
+    const active = req.query.isActive;
+    const name = req.query.firstName;
+
+    let searchQuery = ";";
+
+
+    let isActive = 1;
+    if (active != undefined) {
+
+      if (active != 'true') {
+        isActive = 0;
+      }
+      
+      searchQuery = `WHERE isActive = ${isActive};`
+    }
+
+    if (name != undefined) {
+      searchQuery = `WHERE firstName LIKE('%${name}%');`
+    }
+
+    if (active != undefined && name != undefined) {
+      
+      searchQuery = `WHERE isActive = ${isActive} AND firstName LIKE('%${name}%');`
+    }
+    logger.debug(searchQuery);
+
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
 
       // Use the connection
       connection.query(
         //   'SELECT id, name FROM meal;',
-        "SELECT * FROM user;",
+        "SELECT * FROM user " + searchQuery,
         function (error, results, fields) {
           // When done with the connection, release it.
           connection.release();
@@ -179,10 +224,37 @@ let userController = {
     });
   },
 
-  deleteUser: (req, res, next) => {
+  checkAuthority: (req, res, next) => {
+    const auth = req.headers.authorization;
+    const token = auth.substring(7, auth.length);
+    //Decodes token to a readable object {id:(id), emailAdress:(emailAdress)}
+    const encodedLoad = jwt.decode(token);
+    let editorId = encodedLoad.userId;
     const userId = req.params.userId;
-    let user;
+    dbconnection.getConnection(function (err, connection) {
+      if (err) throw err; // not connected!
+      connection.query(
+        `SELECT roles FROM user WHERE id = ${editorId};`,
+        function (error, results, fields) {
+          logger.debug("roles" + results[0].roles);
+          if (!(editorId === userId || results[0].roles === "editor")) {
+            const err = {
+              status: 403,
+              message: "Unauthorized",
+            };
+            next(err);
+          }else{
+            next();
+          }
 
+        }
+      );
+    });
+  },
+
+  deleteUser: (req, res, next) => {
+    let user;
+    const userId = req.params.userId;
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
       connection.query(
@@ -211,11 +283,11 @@ let userController = {
               result: user,
             });
           } else {
-            const error = {
+            const err = {
               status: 400,
               message: "User does not exist",
             };
-            next(error);
+            next(err);
           }
         }
       );

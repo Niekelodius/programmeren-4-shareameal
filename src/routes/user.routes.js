@@ -12,6 +12,7 @@ router.put(
   validateToken,
   userController.userFinder,
   userController.validateUser,
+  userController.checkAuthority,
   userController.editUser
 );
 
@@ -27,6 +28,7 @@ router.get(
 router.delete(
   "/api/user/:userId",
   validateToken,
+  userController.checkAuthority,
   userController.userFinder,
   userController.deleteUser
 );

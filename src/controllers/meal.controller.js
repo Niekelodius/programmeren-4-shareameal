@@ -57,6 +57,40 @@ let mealController = {
     }
   },
 
+  checkAuthority: (req, res, next) => {
+    const auth = req.headers.authorization;
+    const token = auth.substring(7, auth.length);
+    //Decodes token to a readable object {id:(id), emailAdress:(emailAdress)}
+    const encodedLoad = jwt.decode(token);
+    const mealId = req.params.mealId;
+    const userId = encodedLoad.userId;
+    let cookId;
+    dbconnection.getConnection(function (err, connection) {
+      if (err) throw err; // not connected!
+      connection.query(
+        `SELECT cookId FROM meal WHERE id = ${mealId};`,
+        function (error, results, fields) {
+          cookId = results[0].cookId; 
+        })
+      connection.query(
+        `SELECT roles FROM user WHERE id = ${userId};`,
+        function (error, results, fields) {
+          logger.debug("roles" + results[0].roles);
+          if (!(cookId === userId || results[0].roles === "editor")) {
+            const err = {
+              status: 403,
+              message: "Unauthorized",
+            };
+            next(err);
+          }else{
+            next();
+          }
+
+        }
+      );
+    });
+  },
+
   getMeals: (req, res) => {
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
@@ -98,7 +132,7 @@ let mealController = {
     const token = auth.substring(7, auth.length);
     //Decodes token to a readable object {id:(id), emailAdress:(emailAdress)}
     const encodedLoad = jwt.decode(token);
-    let cookId = encodedLoad.id;
+    let cookId = encodedLoad.userId;
 
     meal.isVega = fnConvertBooleanToNumber(meal.isVega);
     meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
@@ -228,7 +262,7 @@ let mealController = {
   },
 
   deleteMeal: (req, res, next) => {
-    const userId = req.params.mealId;
+    const mealId = req.params.mealId;
     let meal;
 
     dbconnection.getConnection(function (err, connection) {
@@ -252,7 +286,7 @@ let mealController = {
         function (error, results, fields) {
           if (error) throw error;
 
-          if (meal.length > 0) {
+          if (results.affectedRows > 0) {
             logger.log("#result = " + results.length);
             res.status(200).json({
               status: 200,

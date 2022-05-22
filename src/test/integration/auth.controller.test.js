@@ -27,7 +27,7 @@ const invalidToken =
         done();
       });
   
-      it("101-1 Verplicht veld ontbreekt", (done) => {
+      it("101-1 Missing required field", (done) => {
         chai
           .request(index)
           .post("/auth/login")
@@ -43,7 +43,7 @@ const invalidToken =
             done();
           });
       });
-      it("101-2 Niet-valide email adres", (done) => {
+      it("101-2 Invalid emailAddress", (done) => {
         chai
           .request(index)
           .post("/auth/login")
@@ -60,7 +60,7 @@ const invalidToken =
             done();
           });
       });
-      it("101-3 Niet-valide wachtwoord", (done) => {
+      it("101-3 Invalid password", (done) => {
         chai
           .request(index)
           .post("/auth/login")
@@ -77,7 +77,7 @@ const invalidToken =
             done();
           });
       });
-      it("101-4 Gebruiker bestaat niet", (done) => {
+      it("101-4 User does not exist", (done) => {
         chai
           .request(index)
           .post("/auth/login")
