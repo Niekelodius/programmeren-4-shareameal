@@ -31,14 +31,22 @@ let userController = {
       assert(typeof phoneNumber === "string", "phoneNumber must be a string");
       assert(
         emailAdress.match(
-          /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
         ),
         "invalid email"
       );
       assert(
-        password.length > 1,
+        password.match(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/
+        ),
         "invalid password"
       );
+      assert(
+        phoneNumber.match(
+          /(06)(\s|\-|)\d{8}|31(\s6|\-6|6)\d{8}/
+        ),
+        "invalid phoneNumber"
+      )
       logger.debug("Validation complete");
       next();
     } catch (err) {

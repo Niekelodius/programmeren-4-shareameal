@@ -10,6 +10,8 @@ module.exports = {
       if (err) {
         logger.error("Error getting connection from dbconnection");
         res.status(500).json({
+            status: 500,
+            message: "error",
           error: err.toString(),
           datetime: new Date().toISOString(),
         });
@@ -24,6 +26,8 @@ module.exports = {
             if (err) {
               logger.error("Error: ", err.toString());
               res.status(500).json({
+                status: 500,
+                message: "Error",
                 error: err.toString(),
                 datetime: new Date().toISOString(),
               });
@@ -59,8 +63,8 @@ module.exports = {
                 );
               } else {
                 logger.info("User not found or password invalid");
-                res.status(404).json({
-                  status: 404,
+                res.status(400).json({
+                  status: 400,
                   message: "User not found or password invalid",
                   datetime: new Date().toISOString(),
                 });
@@ -107,6 +111,8 @@ module.exports = {
     if (!authHeader) {
       logger.warn("Authorization header missing!");
       res.status(401).json({
+          status: 401,
+          message: "error",
         error: "Authorization header missing!",
         datetime: new Date().toISOString(),
       });
@@ -118,6 +124,8 @@ module.exports = {
         if (err) {
           logger.warn("Not authorized");
           res.status(401).json({
+              status: 401,
+              message: "eror",
             error: "Not authorized",
             datetime: new Date().toISOString(),
           });
