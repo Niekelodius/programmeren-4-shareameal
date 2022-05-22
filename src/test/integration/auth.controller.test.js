@@ -29,7 +29,7 @@ describe("Authentication /auth/login", () => {
     it("101-1 Missing required field", (done) => {
       chai
         .request(index)
-        .post("/auth/login")
+        .post("/api/auth/login")
         .send({
           emailAdress: "ng@avans.nl",
         })
@@ -44,7 +44,7 @@ describe("Authentication /auth/login", () => {
     it("101-2 Invalid emailAddress", (done) => {
       chai
         .request(index)
-        .post("/auth/login")
+        .post("/api/auth/login")
         .send({
           emailAdress: 1,
           password: "Niek",
@@ -60,7 +60,7 @@ describe("Authentication /auth/login", () => {
     it("101-3 Invalid password", (done) => {
       chai
         .request(index)
-        .post("/auth/login")
+        .post("/api/auth/login")
         .send({
           emailAdress: "ng@avans.nl",
           password: 1,
@@ -76,7 +76,7 @@ describe("Authentication /auth/login", () => {
     it("101-4 User does not exist", (done) => {
       chai
         .request(index)
-        .post("/auth/login")
+        .post("/api/auth/login")
         .send({
           emailAdress: "ng@avans.nl",
           password: "123",
