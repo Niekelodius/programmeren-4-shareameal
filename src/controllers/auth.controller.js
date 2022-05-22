@@ -63,8 +63,8 @@ module.exports = {
                 );
               } else {
                 logger.info("User not found or password invalid");
-                res.status(400).json({
-                  status: 400,
+                res.status(404).json({
+                  status: 404,
                   message: "User not found or password invalid",
                   datetime: new Date().toISOString(),
                 });
@@ -83,12 +83,14 @@ module.exports = {
     // Verify that we receive the expected input
     try {
       assert(
-        typeof req.body.emailAdress === "string",
-        "email must be a string."
+        req.body.emailAdress.match(
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+        ), "Invalid emailAddress"
       );
       assert(
-        typeof req.body.password === "string",
-        "password must be a string."
+        req.body.password.match(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/
+        ), "Invalid password"
       );
       next();
     } catch (err) {

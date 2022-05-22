@@ -79,7 +79,7 @@ describe("Authentication /auth/login", () => {
         .post("/api/auth/login")
         .send({
           emailAdress: "ng@avans.nl",
-          password: "123",
+          password: "D1mwwVhTT22!",
         })
         .end((req, res) => {
           res.should.be.an("object");
