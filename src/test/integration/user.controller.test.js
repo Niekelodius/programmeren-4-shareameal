@@ -102,7 +102,7 @@ describe("Manage users /api/user", () => {
           roles: "editor",
           street: "a",
           city: "b",
-          password: "123",
+          password: "",
           emailAdress: "ng@avans.nl",
           phoneNumber: "0651234567",
         })

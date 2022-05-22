@@ -36,9 +36,7 @@ let userController = {
         "invalid email"
       );
       assert(
-        password.match(
-          /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/
-        ),
+        password.length > 1,
         "invalid password"
       );
       logger.debug("Validation complete");
