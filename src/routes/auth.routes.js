@@ -5,30 +5,3 @@ const authController = require("../controllers/auth.controller");
 router.post("/auth/login", authController.validateLogin, authController.login);
 
 module.exports = router;
-
-// {
-//     "firstName": "Niek",
-//     "lastName": "Goossens",
-//     "emailAdress": "ncag@gmail.com",
-//     "password": "wachtwoord",
-//     "isActive": 1,
-//     "phoneNumber": "0123456789",
-//     "roles": "editor",
-//     "street": "achter",
-//     "city": "dorp"
-//   }
-
-// {
-//     "name": "Friet",
-//     "description": "Friet met mayo",
-//     "isActive": true,
-//     "isVega": false,
-//     "isVegan": true,
-//     "isToTakeHome": true,
-//     "maxAmountOfParticipants": 5,
-//     "price": 5.99, 
-//     "dateTime": "2022-08-23",
-//     "imageUrl": "https://imgur.com/a/0WO84",
-//     "allergenes": "aardappel"
-
-//   }eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU

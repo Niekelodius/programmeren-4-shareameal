@@ -1,21 +1,16 @@
 const assert = require("assert");
-const mysql = require("mysql2");
 const dbconnection = require("../../database/dbConnection");
 const logger = require("../config/config").logger;
 const jwt = require("jsonwebtoken");
-const { is } = require("express/lib/request");
-
 
 let userController = {
-
-   test: (req,res) =>{
+  test: (req, res) => {
     logger.debug("test");
   },
 
   validateUser: (req, res, next) => {
     logger.debug("starting validateUser");
     let user = req.body;
-    const userId = req.params.userId;
     let {
       firstName,
       lastName,
@@ -34,10 +29,22 @@ let userController = {
       assert(typeof street === "string", "street must be a string");
       assert(typeof city === "string", "city must be a string");
       assert(typeof phoneNumber === "string", "phoneNumber must be a string");
-      assert(emailAdress.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/), "invalid email");
-      assert(password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/), "invalid password");
+      assert(
+        emailAdress.match(
+          /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        ),
+        "invalid email"
+      );
+      assert(
+        password.match(
+          /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/
+        ),
+        "invalid password"
+      );
+      logger.debug("Validation complete");
       next();
     } catch (err) {
+      logger.debug("Validation failed");
       const error = {
         status: 400,
         message: err.message,
@@ -59,6 +66,7 @@ let userController = {
             if (err) throw err;
             user = results;
             if (results.length < 1) {
+              logger.debug("User does not exists: " + userId);
               const err = {
                 status: 404,
                 message: "User does not exist",
@@ -73,9 +81,6 @@ let userController = {
         status: 400,
         message: err.message,
       };
-
-
-
       console.log(error);
       next(error);
     }
@@ -83,7 +88,6 @@ let userController = {
 
   addUser: (req, res, next) => {
     let user = req.body;
-    logger.debug("starting addUser");
 
     dbconnection.getConnection(function (err, connection) {
       connection.query(
@@ -101,23 +105,22 @@ let userController = {
           user.roles,
         ],
         function (error, results, fields) {
-          logger.debug("starting d");
           connection.release();
           if (error) {
-            logger.debug(error);
+            logger.error("Could not add user: " + error);
             const err = {
               status: 409,
               message: "Email not unique",
             };
-            
+
             next(err);
           } else {
-            logger.debug("#result = " + results.length);
+            logger.debug("Succesfully added user to database: " + user);
             user.userId = results.insertId;
             res.status(200).json({
               status: 200,
               message: "Succesfully added user to database",
-              result: user,      
+              result: user,
             });
           }
         }
@@ -138,87 +141,67 @@ let userController = {
           user.street,
           user.city,
           user.password,
-
           user.phoneNumber,
           user.roles,
           userId,
         ],
         function (error, results, fields) {
-          // connection.release();
           if (error) throw err;
 
           if (error) {
+            logger.error("Could not edit user: " + error);
             const error = {
               status: 400,
               message: error.message,
             };
             next(error);
           } else {
+            logger.info("Succesfully added user: " + user);
             res.status(200).json({
               status: 200,
               result: user,
             });
           }
-
-          logger.log("#result = " + results.length);
         }
       );
     });
   },
 
-
-
   getAllUsers: (req, res) => {
     const active = req.query.isActive;
     const name = req.query.firstName;
-
     let searchQuery = ";";
-
-
     let isActive = 1;
-    if (active != undefined) {
 
-      if (active != 'true') {
+    if (active != undefined) {
+      if (active != "true") {
         isActive = 0;
       }
-      
-      searchQuery = `WHERE isActive = ${isActive};`
+      searchQuery = `WHERE isActive = ${isActive};`;
     }
 
     if (name != undefined) {
-      searchQuery = `WHERE firstName LIKE('%${name}%');`
+      searchQuery = `WHERE firstName LIKE('%${name}%');`;
     }
 
     if (active != undefined && name != undefined) {
-      
-      searchQuery = `WHERE isActive = ${isActive} AND firstName LIKE('%${name}%');`
+      searchQuery = `WHERE isActive = ${isActive} AND firstName LIKE('%${name}%');`;
     }
-    logger.debug(searchQuery);
+    logger.info("Searchquery: " + searchQuery);
 
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
-
-      // Use the connection
       connection.query(
-        //   'SELECT id, name FROM meal;',
         "SELECT * FROM user " + searchQuery,
         function (error, results, fields) {
-          // When done with the connection, release it.
           connection.release();
 
-          // Handle error after the release.
           if (error) throw error;
-
-          // Don't use the connection here, it has been returned to the pool.
-          logger.log("#result = " + results.length);
+          logger.info("Amount of users: " + results.length);
           res.status(200).json({
             statusCode: 200,
             result: results,
           });
-
-          // pool.end((err) => {
-          //   console.log('pool was closed');
-          // });
         }
       );
     });
@@ -227,7 +210,6 @@ let userController = {
   checkAuthority: (req, res, next) => {
     const auth = req.headers.authorization;
     const token = auth.substring(7, auth.length);
-    //Decodes token to a readable object {id:(id), emailAdress:(emailAdress)}
     const encodedLoad = jwt.decode(token);
     let editorId = encodedLoad.userId;
     const userId = req.params.userId;
@@ -243,10 +225,9 @@ let userController = {
               message: "Unauthorized",
             };
             next(err);
-          }else{
+          } else {
             next();
           }
-
         }
       );
     });
@@ -270,7 +251,6 @@ let userController = {
 
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
-
       connection.query(
         `DELETE FROM user WHERE id = ${userId} ;`,
         function (error, results, fields) {
@@ -291,7 +271,7 @@ let userController = {
           }
         }
       );
-    }); 
+    });
   },
 
   getUserById: (req, res, next) => {
@@ -302,11 +282,13 @@ let userController = {
         (err, results, fields) => {
           if (err) throw err;
           if (results.length > 0) {
+            logger.info("Found user: " + results);
             res.status(200).json({
               status: 200,
               result: results,
             });
           } else {
+            logger.error("Could not find user: " + err);
             const error = {
               status: 404,
               message: "User does not exist",
@@ -317,12 +299,6 @@ let userController = {
       );
     });
   },
-
-  //https://assertion-server-program-4.herokuapp.com/api/assert/t2
-  //   {
-  //     "url": "https://share-a-meal-niek.herokuapp.com",
-  //     "studentnumber": 2183046
-  // }
 
   getProfile: (req, res, next) => {
     const auth = req.headers.authorization;
@@ -336,11 +312,13 @@ let userController = {
         (err, results, fields) => {
           if (err) throw err;
           if (results.length > 0) {
+            logger.info("Succesfully got profile: " + results);
             res.status(200).json({
               status: 201,
               result: results,
             });
           } else {
+            logger.error("Could not get profile: " + err);
             const error = {
               status: 401,
               message: "Invalid token",

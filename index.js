@@ -8,7 +8,7 @@ const mealRouter = require("./src/routes/meal.routes");
 const authRouter = require("./src/routes/auth.routes");
 const bodyParser = require("body-parser");
 const req = require("express/lib/request");
-const logger = require('./src/config/config').logger
+const logger = require("./src/config/config").logger;
 
 app.use(bodyParser.json());
 app.use(mealRouter);
@@ -37,6 +37,7 @@ app.all("*", (req, res) => {
 
 //error handler
 app.use((err, req, res, next) => {
+  logger.error(err);
   res.status(err.status).json(err);
 });
 

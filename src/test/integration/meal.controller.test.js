@@ -24,19 +24,11 @@ describe("Manage meals /api/meal", () => {
   describe("TC-301 Add meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-
       database.getConnection(function (err, connection) {
         if (err) throw err;
-
-        // Use the connection
         connection.query(CLEAR_DB, function (error, results, fields) {
-          // When done with the connection, release it.
           connection.release();
-
-          // Handle error after the release.
           if (err) throw err;
-          // Let op dat je done() pas aanroept als de query callback eindigt!
           logger.debug("beforeEach done");
           done();
         });
@@ -96,50 +88,16 @@ describe("Manage meals /api/meal", () => {
           done();
         });
     });
-    // it("301-3 Maaltijd succesvol toegevoegd", (done) => {
-    //   chai
-    //     .request(index)
-    //     .post("/api/meal")
-    //     .auth(validToken, { type: "bearer" })
-    //     .send({
-    //       name: "Frietje",
-    //       description: "Friet met mayo",
-    //       isActive: true,
-    //       isVega: false,
-    //       isVegan: true,
-    //       isToTakeHome: true,
-    //       maxAmountOfParticipants: 5,
-    //       price: 5.99,
-    //       dateTime: "2022-08-23",
-    //       imageUrl: "https://imgur.com/a/0WO84",
-    //       allergenes: "aardappel",
-    //     })
-    //     .end((req, res) => {
-    //       res.should.be.an("object");
-    //       let { status, result } = res.body;
-    //       status.should.equals(201);
-    //       result.should.be.an("object");
-    //       done();
-    //     });
-    // });
   });
 
   describe("TC-302 Edit meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-
       database.getConnection(function (err, connection) {
         if (err) throw err;
-
-        // Use the connection
         connection.query(CLEAR_DB, function (error, results, fields) {
-          // When done with the connection, release it.
           connection.release();
-
-          // Handle error after the release.
           if (err) throw err;
-          // Let op dat je done() pas aanroept als de query callback eindigt!
           logger.debug("beforeEach done");
           done();
         });
@@ -200,79 +158,15 @@ describe("Manage meals /api/meal", () => {
           done();
         });
     });
-
-    // it("302-4 Maaltijd bestaat niet", (done) => {
-    //   chai
-    //     .request(index)
-    //     .put("/api/meal/1000000")
-    //     .auth(validToken, { type: "bearer" })
-    //     .send({
-    //       name: "Frietje",
-    //       description: "Friet met mayo",
-    //       isActive: true,
-    //       isVega: false,
-    //       isVegan: true,
-    //       isToTakeHome: true,
-    //       maxAmountOfParticipants: 5,
-    //       price: 5.99,
-    //       dateTime: "2022-08-23",
-    //       imageUrl: "https://imgur.com/a/0WO84",
-    //       allergenes: "aardappel",
-    //     })
-    //     .end((req, res) => {
-    //       res.should.be.an("object");
-    //       let { status, message } = res.body;
-    //       status.should.equals(404);
-    //       message.should.be.a("string").that.equals("Meal does not exist");
-    //       done();
-    //     });
-    // });
-    // it("302-5 Maaltijd succesvol gewijzigd", (done) => {
-    //     chai
-    //       .request(index)
-    //       .put("/api/meal/1")
-    //       .auth(validToken, { type: "bearer" })
-    //       .send({
-    //           name: "Frietje",
-    //         description: "Friet met mayo",
-    //         isActive: true,
-    //         isVega: false,
-    //         isVegan: true,
-    //         isToTakeHome: true,
-    //         maxAmountOfParticipants: 5,
-    //         price: 5.99,
-    //         dateTime: "2022-08-23",
-    //         imageUrl: "https://imgur.com/a/0WO84",
-    //         allergenes: "aardappel",
-    //       })
-    //       .end((req, res) => {
-
-    //         res.should.be.an("object");
-    //         let { status, message } = res.body;
-    //         status.should.equals(404);
-    //         message.should.be
-    //           .a("string")
-    //           .that.equals("Meal does not exist");
-    //         done();;
-    //       });
-    //     });
   });
   describe("TC-303 Request list of meals", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-
       database.getConnection(function (err, connection) {
         if (err) throw err;
-
-        // Use the connection
         connection.query(CLEAR_DB, function (error, results, fields) {
-          // When done with the connection, release it.
           connection.release();
-
-          // Handle error after the release.
           if (err) throw err;
-          // Let op dat je done() pas aanroept als de query callback eindigt!
           logger.debug("beforeEach done");
           done();
         });
@@ -295,19 +189,13 @@ describe("Manage meals /api/meal", () => {
   describe("TC-304 Request meal details", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-
       database.getConnection(function (err, connection) {
         if (err) throw err;
 
-        // Use the connection
         connection.query(CLEAR_DB, function (error, results, fields) {
-          // When done with the connection, release it.
           connection.release();
 
-          // Handle error after the release.
           if (err) throw err;
-          // Let op dat je done() pas aanroept als de query callback eindigt!
           logger.debug("beforeEach done");
           done();
         });
@@ -326,35 +214,17 @@ describe("Manage meals /api/meal", () => {
           done();
         });
     });
-    // it("304-2 Details van maaltijd geretourneerd", (done) => {
-    //     chai
-    //       .request(index)
-    //       .get("/api/meal/1")
-    //       .end((req, res) => {
-    //         res.should.be.an("object");
-    //         let { status, message } = res.body;
-    //         status.should.equals(200);
-    //         message.should.be.an("object");
-    //         done();
-    //       });
-    //   });
   });
   describe("TC-305 Delete meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
 
       database.getConnection(function (err, connection) {
         if (err) throw err;
-
-        // Use the connection
         connection.query(CLEAR_DB, function (error, results, fields) {
-          // When done with the connection, release it.
           connection.release();
 
-          // Handle error after the release.
           if (err) throw err;
-          // Let op dat je done() pas aanroept als de query callback eindigt!
           logger.debug("beforeEach done");
           done();
         });
@@ -366,51 +236,25 @@ describe("Manage meals /api/meal", () => {
         .request(index)
         .delete("/api/meal/99999")
         .end((req, res) => {
-            let { error, status } = res.body;
-            error.should.be
-              .a("string")
-              .that.equals("Authorization header missing!");
-            done();
+          let { error, status } = res.body;
+          error.should.be
+            .a("string")
+            .that.equals("Authorization header missing!");
+          done();
         });
     });
-    // it("305-2 Niet de eigenaar van de data", (done) => {
-    //     chai
-    //       .request(index)
-    //       .get("/api/meal/99999")
-    //       .end((req, res) => {
-    //         res.should.be.an("object");
-    //         let { status, message } = res.body;
-    //         status.should.equals(404);
-    //         message.should.be.a("string").that.equals("Meal does not exist");
-    //         done();
-    //       });
-    //   });
     it("305-3 Meal does not exist", (done) => {
-        chai
-          .request(index)
-          .get("/api/meal/99999")
-          .auth(validToken, { type: "bearer" })
-          .end((req, res) => {
-            res.should.be.an("object");
-            let { status, message } = res.body;
-            status.should.equals(404);
-            message.should.be.a("string").that.equals("Meal does not exist");
-            done();
-          });
-      });
-    //   it("305-3 Maaltijd bestaat niet", (done) => {
-    //     chai
-    //       .request(index)
-    //       .get("/api/meal/99999")
-    //       .auth(validToken, { type: "bearer" })
-    //       .end((req, res) => {
-    //         res.should.be.an("object");
-    //         let { status, message } = res.body;
-    //         status.should.equals(404);
-    //         message.should.be.a("string").that.equals("Meal does not exist");
-    //         done();
-    //       });
-    //   });
-
+      chai
+        .request(index)
+        .get("/api/meal/99999")
+        .auth(validToken, { type: "bearer" })
+        .end((req, res) => {
+          res.should.be.an("object");
+          let { status, message } = res.body;
+          status.should.equals(404);
+          message.should.be.a("string").that.equals("Meal does not exist");
+          done();
+        });
+    });
   });
 });

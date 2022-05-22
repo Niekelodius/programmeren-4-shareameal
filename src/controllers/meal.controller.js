@@ -1,8 +1,6 @@
 const assert = require("assert");
-const mysql = require("mysql2");
 const jwt = require("jsonwebtoken");
 const dbconnection = require("../../database/dbConnection");
-const { type } = require("express/lib/response");
 const logger = require("../config/config").logger;
 
 let mealController = {
@@ -23,32 +21,27 @@ let mealController = {
       allergenes,
     } = meal;
 
-    logger.debug(meal);
+    logger.debug("Raw mealdata: " + meal);
     try {
       assert(typeof name == "string", "Name must be filled in and a string");
       assert(
         typeof description == "string",
         "Description must be filled in or a string"
       );
-      assert(typeof isActive == "boolean", "Must be active or not");
-      assert(typeof isVega == "boolean", "Must be vega or not");
-      assert(typeof isVegan == "boolean", "Must be vegan or not");
-      assert(typeof isToTakeHome == "boolean", "must be a boolean value");
-      assert(typeof dateTime == "string", "Must be filled in");
-      assert(typeof imageUrl == "string", "Must have a image url");
-      assert(typeof allergenes == "object", "Must be an array");
-
-      //assert(typeof allergenes == '')
-      assert(
-        typeof maxAmountOfParticipants == "number",
-        "Maximum amount of participants required"
-      );
-      assert(typeof price == "number", "Price is required");
+      assert(typeof isActive == "boolean", "Must be a boolean");
+      assert(typeof isVega == "boolean", "Must be a boolean");
+      assert(typeof isVegan == "boolean", "Must be a boolean");
+      assert(typeof isToTakeHome == "boolean", "must be a boolean");
+      assert(typeof dateTime == "string", "Must be a string");
+      assert(typeof imageUrl == "string", "Must be a string");
+      assert(typeof allergenes == "object", "Must be an object/array");
+      assert(typeof maxAmountOfParticipants == "number", "Must be a number");
+      assert(typeof price == "number", "Must be a number");
       logger.debug("Validation complete");
       next();
     } catch (error) {
-      logger.debug(error.message);
       logger.debug("Validation failed");
+      logger.error(error);
       const err = {
         status: 400,
         message: error.message,
@@ -60,7 +53,6 @@ let mealController = {
   checkAuthority: (req, res, next) => {
     const auth = req.headers.authorization;
     const token = auth.substring(7, auth.length);
-    //Decodes token to a readable object {id:(id), emailAdress:(emailAdress)}
     const encodedLoad = jwt.decode(token);
     const mealId = req.params.mealId;
     const userId = encodedLoad.userId;
@@ -70,22 +62,30 @@ let mealController = {
       connection.query(
         `SELECT cookId FROM meal WHERE id = ${mealId};`,
         function (error, results, fields) {
-          cookId = results[0].cookId; 
-        })
+          cookId = results[0].cookId;
+        }
+      );
       connection.query(
         `SELECT roles FROM user WHERE id = ${userId};`,
         function (error, results, fields) {
-          logger.debug("roles" + results[0].roles);
           if (!(cookId === userId || results[0].roles === "editor")) {
+            logger.debug(
+              "UserId: " +
+                userId +
+                " cookId: " +
+                cookId +
+                " user roles: " +
+                results[0].roles
+            );
             const err = {
               status: 403,
               message: "Unauthorized",
             };
             next(err);
-          }else{
+          } else {
+            logger.info("User authorized");
             next();
           }
-
         }
       );
     });
@@ -94,29 +94,17 @@ let mealController = {
   getMeals: (req, res) => {
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
-
-      // Use the connection
       connection.query(
-        //   'SELECT id, name FROM meal;',
         "SELECT * FROM meal;",
         function (error, results, fields) {
-          // When done with the connection, release it.
           connection.release();
-
-          // Handle error after the release.
           if (error) throw error;
 
-          // Don't use the connection here, it has been returned to the pool.
-          logger.log("#result = " + results.length);
-          logger.debug(results)
+          logger.debug("Amount of meals: " + results.length);
           res.status(200).json({
             status: 200,
             result: results,
           });
-
-          // pool.end((err) => {
-          //   console.log('pool was closed');
-          // });
         }
       );
     });
@@ -124,13 +112,8 @@ let mealController = {
 
   addMeal: (req, res, next) => {
     let meal = req.body;
-    logger.warn("test");
-
-    //id is nog hardcoded fix dat
-    //Receives payload from authorization with the token
     const auth = req.headers.authorization;
     const token = auth.substring(7, auth.length);
-    //Decodes token to a readable object {id:(id), emailAdress:(emailAdress)}
     const encodedLoad = jwt.decode(token);
     let cookId = encodedLoad.userId;
 
@@ -140,15 +123,16 @@ let mealController = {
 
     meal.allergenes = meal.allergenes.toString();
 
+    logger.debug("Converted meal data: " + meal);
+
     dbconnection.getConnection(function (err, connection) {
       if (err) throw err; // not connected!
-
       connection.query(
         "INSERT INTO meal " +
           "(name, description, isVega, isVegan, isToTakeHome, dateTime, imageUrl, maxAmountOfParticipants, price, allergenes, cookId) " +
           "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
-          meal.name, 
+          meal.name,
           meal.description,
           meal.isVega,
           meal.isVegan,
@@ -162,7 +146,8 @@ let mealController = {
         ],
         function (error, results, fields) {
           if (error) {
-            logger.debug(error);
+            logger.debug("Could not add meal: " + meal[0]);
+            logger.error(error);
             const err = {
               status: 409,
               message: "Could not add meal",
@@ -170,8 +155,8 @@ let mealController = {
             connection.release();
             next(err);
           } else {
-            logger.debug("#result = " + results.length);
-            meal.id = results.insertId
+            logger.info("Added meal: " + meal);
+            meal.id = results.insertId;
             res.status(201).json({
               status: 201,
               result: meal,
@@ -183,7 +168,6 @@ let mealController = {
   },
 
   updateMealById: (req, res, next) => {
-    logger.trace("Update has started");
     let meal = req.body;
     const currentId = req.params.mealId;
 
@@ -192,7 +176,8 @@ let mealController = {
     meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
     meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
 
-    //Search for current meal
+    logger.info("Converted meal data: " + meal);
+
     dbconnection.getConnection(function (err, connection) {
       connection.query(
         "UPDATE meal SET name = ? ,description = ?, isActive = ?,isVega = ?,isVegan = ?,isToTakeHome = ?,dateTime = ?,imageUrl = ?,allergenes = ?,maxAmountOfParticipants = ?, price = ? WHERE id = ?;",
@@ -212,8 +197,6 @@ let mealController = {
         ],
         function (error, results, fields) {
           if (error) throw err;
-          // logger.log(error);
-
           if (results.affectedRows == 0) {
             const error = {
               status: 404,
@@ -221,13 +204,12 @@ let mealController = {
             };
             next(error);
           } else {
-
+            logger.info("Edited meal: " + meal);
             res.status(200).json({
               status: 200,
               result: meal,
             });
           }
-          logger.log("#result = " + results.length);
         }
       );
     });
@@ -242,14 +224,14 @@ let mealController = {
         function (error, results, fields) {
           connection.release();
           if (error) throw error;
-          logger.log("#result = " + results.length);
           if (results.length > 0) {
-            
+            logger.info("Meal: " + results);
             res.status(200).json({
               statusCode: 200,
               result: results,
             });
           } else {
+            logger.debug("Could not find mealId: " + mealId);
             const error = {
               status: 404,
               message: "Meal does not exist",
@@ -272,7 +254,7 @@ let mealController = {
         function (error, results, fields) {
           connection.release();
           if (error) throw error;
-          logger.log("#result = " + results.length);
+          logger.info("Deleting meal: " + mealId);
           meal = results;
         }
       );
@@ -287,12 +269,13 @@ let mealController = {
           if (error) throw error;
 
           if (results.affectedRows > 0) {
-            logger.log("#result = " + results.length);
+            logger.info("#Deleted meal: " + meal);
             res.status(200).json({
               status: 200,
               result: meal,
             });
           } else {
+            logger.debug("Meal does not exist");
             const error = {
               status: 400,
               message: "Meal does not exist",
