@@ -28,7 +28,6 @@ let userController = {
       assert(typeof emailAdress === "string", "emailAdress must be a string");
       assert(typeof street === "string", "street must be a string");
       assert(typeof city === "string", "city must be a string");
-      assert(typeof phoneNumber === "string", "phoneNumber must be a string");
       assert(
         emailAdress.match(
           /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
@@ -41,12 +40,16 @@ let userController = {
         ),
         "invalid password"
       );
-      assert(
-        phoneNumber.match(
-          /(06)(\s|\-|)\d{8}|31(\s6|\-6|6)\d{8}/
-        ),
-        "invalid phoneNumber"
-      )
+      if (phoneNumber != undefined) {
+        assert(typeof phoneNumber === "string", "phoneNumber must be a string");
+        assert(
+          phoneNumber.match(
+            /(06)(\s|\-|)\d{8}|31(\s6|\-6|6)\d{8}/
+          ),
+          "invalid phoneNumber"
+        )
+      }
+
       logger.debug("Validation complete");
       next();
     } catch (err) {
@@ -96,6 +99,10 @@ let userController = {
     let user = req.body;
 
     dbconnection.getConnection(function (err, connection) {
+      if (user.phoneNumber == undefined) {
+        user.phoneNumber = " "
+      }
+      logger
       connection.query(
         "INSERT INTO user " +
           "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +

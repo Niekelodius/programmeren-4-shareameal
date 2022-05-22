@@ -169,7 +169,7 @@ describe("Manage users /api/user", () => {
           city: "b",
           emailAdress: "ng@avans.nl",
           password: "D1mwwVhTT22!",
-          phoneNumber: "0651234567",
+
         })
         .end((req, res) => {
           res.should.be.an("object");
