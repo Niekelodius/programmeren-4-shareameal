@@ -1,7 +1,8 @@
 const assert = require("assert");
-const dbconnection = require("../../database/dbConnection");
+// const dbconnection = require("../../database/dbConnection");
 const logger = require("../config/config").logger;
 const jwt = require("jsonwebtoken");
+const pool = require("../../database/dbConnection");
 
 let userController = {
   test: (req, res) => {
@@ -29,25 +30,19 @@ let userController = {
       assert(typeof street === "string", "street must be a string");
       assert(typeof city === "string", "city must be a string");
       assert(
-        emailAdress.match(
-          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-        ),
+        emailAdress.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/),
         "invalid email"
       );
       assert(
-        password.match(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/
-        ),
+        password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/),
         "invalid password"
       );
       if (phoneNumber != undefined) {
         assert(typeof phoneNumber === "string", "phoneNumber must be a string");
         assert(
-          phoneNumber.match(
-            /(06)(\s|\-|)\d{8}|31(\s6|\-6|6)\d{8}/
-          ),
+          phoneNumber.match(/(06)(\s|\-|)\d{8}|31(\s6|\-6|6)\d{8}/),
           "invalid phoneNumber"
-        )
+        );
       }
 
       logger.debug("Validation complete");
@@ -66,24 +61,20 @@ let userController = {
     const userId = req.params.userId;
     try {
       assert(Number.isInteger(parseInt(userId)), "Id must be a number");
-      dbconnection.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
-        connection.query(
-          `SELECT * FROM user WHERE id = ${userId};`,
-          function (err, results, fields) {
-            connection.release();
-            if (err) throw err;
-            user = results;
-            if (results.length < 1) {
-              logger.debug("User does not exists: " + userId);
-              const err = {
-                status: 404,
-                message: "User does not exist",
-              };
-            }
+      pool.query(
+        `SELECT * FROM user WHERE id = ${userId};`,
+        function (err, results, fields) {
+          if (err) throw err;
+          user = results;
+          if (results.length < 1) {
+            logger.debug("User does not exists: " + userId);
+            const err = {
+              status: 404,
+              message: "User does not exist",
+            };
           }
-        );
-      });
+        }
+      );
       next();
     } catch (err) {
       const error = {
@@ -98,86 +89,77 @@ let userController = {
   addUser: (req, res, next) => {
     let user = req.body;
 
-    dbconnection.getConnection(function (err, connection) {
-      if (user.phoneNumber == undefined) {
-        user.phoneNumber = " "
-      }
-      logger
-      connection.query(
-        "INSERT INTO user " +
-          "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
-          "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          user.firstName,
-          user.lastName,
-          user.street,
-          user.city,
-          user.password,
-          user.emailAdress,
-          user.phoneNumber,
-          user.roles,
-        ],
-        function (error, results, fields) {
-          connection.release();
-          if (error) {
-            logger.error("Could not add user: " + error);
-            const err = {
-              status: 409,
-              message: "Email not unique",
-            };
+    pool.query(
+      "INSERT INTO user " +
+        "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
+        "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        user.firstName,
+        user.lastName,
+        user.street,
+        user.city,
+        user.password,
+        user.emailAdress,
+        user.phoneNumber,
+        user.roles,
+      ],
+      function (error, results, fields) {
+        if (error) {
+          logger.error("Could not add user: " + error);
+          const err = {
+            status: 409,
+            message: "Email not unique",
+          };
 
-            next(err);
-          } else {
-            logger.debug("Succesfully added user to database: " + user);
-            user.userId = results.insertId;
-            res.status(200).json({
-              status: 200,
-              message: "Succesfully added user to database",
-              result: user,
-            });
-          }
+          next(err);
+        } else {
+          logger.debug("Succesfully added user to database: " + user);
+          user.userId = results.insertId;
+          res.status(200).json({
+            status: 200,
+            message: "Succesfully added user to database",
+            result: user,
+          });
         }
-      );
-    });
+      }
+    );
   },
 
   editUser: (req, res, next) => {
     const userId = req.params.userId;
     let user = req.body;
 
-    dbconnection.getConnection(function (err, connection) {
-      connection.query(
-        "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
-        [
-          user.firstName,
-          user.lastName,
-          user.street,
-          user.city,
-          user.password,
-          user.phoneNumber,
-          user.roles,
-          userId,
-        ],
-        function (error, results, fields) {
-          if (error) throw err;
+    pool.query(
+      "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
+      [
+        user.firstName,
+        user.lastName,
+        user.street,
+        user.city,
+        user.password,
+        user.phoneNumber,
+        user.roles,
+        userId,
+      ],
+      function (error, results, fields) {
+        if (error) throw err;
 
-          if (error) {
-            logger.error("Could not edit user: " + error);
-            const error = {
-              status: 400,
-              message: error.message,
-            };
-            next(error);
-          } else {
-            logger.info("Succesfully added user: " + user);
-            res.status(200).json({
-              status: 200,
-              result: user,
-            });
-          }
+        if (error) {
+          logger.error("Could not edit user: " + error);
+          const error = {
+            status: 400,
+            message: error.message,
+          };
+          next(error);
+        } else {
+          logger.info("Succesfully added user: " + user);
+          res.status(200).json({
+            status: 200,
+            result: user,
+          });
         }
-      );
-    });
+      }
+    );
   },
 
   getAllUsers: (req, res) => {
@@ -202,123 +184,105 @@ let userController = {
     }
     logger.info("Searchquery: " + searchQuery);
 
-    dbconnection.getConnection(function (err, connection) {
-      if (err) throw err; // not connected!
-      connection.query(
-        "SELECT * FROM user " + searchQuery,
-        function (error, results, fields) {
-          connection.release();
-
-          if (error) throw error;
-          logger.info("Amount of users: " + results.length);
-          res.status(200).json({
-            statusCode: 200,
-            result: results,
-          });
-        }
-      );
-    });
+    pool.query(
+      "SELECT * FROM user " + searchQuery,
+      function (error, results, fields) {
+        if (error) throw error;
+        logger.info("Amount of users: " + results.length);
+        res.status(200).json({
+          statusCode: 200,
+          result: results,
+        });
+      }
+    );
   },
 
-  checkAuthority: (req, res, next) => {
-    const auth = req.headers.authorization;
-    const token = auth.substring(7, auth.length);
-    const encodedLoad = jwt.decode(token);
-    let editorId = encodedLoad.userId;
-    const userId = req.params.userId;
-    dbconnection.getConnection(function (err, connection) {
-      if (err) throw err; // not connected!
-      connection.query(
-        `SELECT roles FROM user WHERE id = ${editorId};`,
-        function (error, results, fields) {
-          if (error) {
-            logger.error(error);
-          }
-          logger.debug("editor " + editorId + " user " + userId);
-          logger.debug("roles" + results[0].roles);
-          let role = "guest";
-          if (results[0].roles.indexOf("editor" || "admin") !== -1) {
-            role = "editor";
-          }
-          if (editorId == userId || role == "editor") {
-            next();
-          } else {
-            const err = {
-              status: 403,
-              message: "Unauthorized",
-            };
-            next(err);
-          }
-        }
-      );
-    });
-  },
+  // checkAuthority: (req, res, next) => {
+  //   const auth = req.headers.authorization;
+  //   const token = auth.substring(7, auth.length);
+  //   const encodedLoad = jwt.decode(token);
+  //   let editorId = encodedLoad.userId;
+  //   const userId = req.params.userId;
+  //   dbconnection.getConnection(function (err, connection) {
+  //     if (err) throw err; // not connected!
+  //     connection.query(
+  //       `SELECT roles FROM user WHERE id = ${editorId};`,
+  //       function (error, results, fields) {
+  //         if (error) {
+  //           logger.error(error);
+  //         }
+  //         logger.debug("editor " + editorId + " user " + userId);
+  //         if (editorId == userId) {
+  //           //fix
+  //           next();
+  //         } else {
+  //           const err = {
+  //             status: 403,
+  //             message: "Unauthorized",
+  //           };
+  //           next(err);
+  //         }
+  //       }
+  //     );
+  //   });
+  // },
 
   deleteUser: (req, res, next) => {
     let user;
     const userId = req.params.userId;
-    dbconnection.getConnection(function (err, connection) {
-      if (err) throw err; // not connected!
-      connection.query(
-        `SELECT * FROM user WHERE id = ${userId};`,
-        function (error, results, fields) {
-          connection.release();
-          if (error) throw error;
+    pool.query(
+      `SELECT * FROM user WHERE id = ${userId};`,
+      function (error, results, fields) {
+        if (error) throw error;
+        logger.log("#result = " + results.length);
+        user = results;
+      }
+    );
+
+    pool.query(
+      `DELETE FROM user WHERE id = ${userId} ;`,
+      function (error, results, fields) {
+        if (error) throw error;
+
+        if (user.length > 0) {
           logger.log("#result = " + results.length);
-          user = results;
+          res.status(200).json({
+            statusCode: 200,
+            result: user,
+          });
+        } else {
+          const err = {
+            status: 400,
+            message: "User does not exist",
+          };
+          next(err);
         }
-      );
-    });
-
-    dbconnection.getConnection(function (err, connection) {
-      if (err) throw err; // not connected!
-      connection.query(
-        `DELETE FROM user WHERE id = ${userId} ;`,
-        function (error, results, fields) {
-          if (error) throw error;
-
-          if (user.length > 0) {
-            logger.log("#result = " + results.length);
-            res.status(200).json({
-              statusCode: 200,
-              result: user,
-            });
-          } else {
-            const err = {
-              status: 400,
-              message: "User does not exist",
-            };
-            next(err);
-          }
-        }
-      );
-    });
+      }
+    );
   },
 
   getUserById: (req, res, next) => {
     const userId = req.params.userId;
-    dbconnection.getConnection(function (err, connection) {
-      connection.query(
-        `SELECT * FROM user WHERE id =${userId}`,
-        (err, results, fields) => {
-          if (err) throw err;
-          if (results.length > 0) {
-            logger.info("Found user: " + results);
-            res.status(200).json({
-              status: 200,
-              result: results,
-            });
-          } else {
-            logger.error("Could not find user: " + err);
-            const error = {
-              status: 404,
-              message: "User does not exist",
-            };
-            next(error);
-          }
+    pool.query(
+      `SELECT * FROM user WHERE id =${userId}`,
+      (err, results, fields) => {
+        if (err) throw err;
+        if (results.length > 0) {
+          logger.info("Found user: " + results);
+          res.status(200).json({
+            status: 200,
+            result: results,
+          });
+        } else {
+          logger.error("Could not find user: " + err);
+          const error = {
+            status: 404,
+            message: "User does not exist",
+          };
+          next(error);
         }
-      );
-    });
+      }
+    );
   },
 
   getProfile: (req, res, next) => {
@@ -327,28 +291,26 @@ let userController = {
     const encodedLoad = jwt.decode(token);
     let userId = encodedLoad.userId;
 
-    dbconnection.getConnection(function (err, connection) {
-      connection.query(
-        `SELECT * FROM user WHERE id =${userId}`,
-        (err, results, fields) => {
-          if (err) throw err;
-          if (results.length > 0) {
-            logger.info("Succesfully got profile: " + results);
-            res.status(200).json({
-              status: 201,
-              result: results,
-            });
-          } else {
-            logger.error("Could not get profile: " + err);
-            const error = {
-              status: 401,
-              message: "Invalid token",
-            };
-            next(error);
-          }
+    pool.query(
+      `SELECT * FROM user WHERE id =${userId}`,
+      (err, results, fields) => {
+        if (err) throw err;
+        if (results.length > 0) {
+          logger.info("Succesfully got profile: " + results);
+          res.status(200).json({
+            status: 201,
+            result: results,
+          });
+        } else {
+          logger.error("Could not get profile: " + err);
+          const error = {
+            status: 401,
+            message: "Invalid token",
+          };
+          next(error);
         }
-      );
-    });
+      }
+    );
   },
 };
 module.exports = userController;

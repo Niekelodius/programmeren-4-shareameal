@@ -3,7 +3,7 @@ process.env.LOGLEVEL = "warn";
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const database = require("../../../database/dbConnection");
+const pool = require("../../../database/dbConnection");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const assert = require("assert");
@@ -14,25 +14,22 @@ chai.should();
 chai.use(chaiHttp);
 
 let validToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTY1MzA1NDQwMiwiZXhwIjoxNjU0MDkxMjAyfQ.qjG8JF3E-usyhLJCg02mDoKmtO3V36dPUH4vgJxfCIA";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQ0LCJpYXQiOjE2NTY1ODU4MDUsImV4cCI6MTY1NzYyMjYwNX0.uo-dQ3uSh0jkLGY3oEnIFpRVZ6hwzsSxqrZsCdN4P4c";
 const invalidToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU";
 
-const CLEAR_DB = "DELETE  FROM `meal` WHERE emailAdress = 'ng@avans.nl';";
+const CLEAR_DB = "DELETE FROM `meal`;";
+const ADD_MEAL = "INSERT INTO `meal` VALUES (1,1,0,0,1,'2022-03-22 17:35:00',4,12.75,'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',1,'2022-02-26 18:12:40.048998','2022-04-26 12:33:51.000000','Pasta Bolognese met tomaat, spekjes en kaas','Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!','gluten,lactose')"
 
 describe("Manage meals /api/meal", () => {
   describe("TC-301 Add meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      database.getConnection(function (err, connection) {
-        if (err) throw err;
-        connection.query(CLEAR_DB, function (error, results, fields) {
-          connection.release();
-          if (err) throw err;
+        pool.query(CLEAR_DB, function (error, results, fields) {
+          if (error) throw error;
           logger.debug("beforeEach done");
           done();
         });
-      });
     });
 
     it("301-1 Missing required field", (done) => {
@@ -93,15 +90,11 @@ describe("Manage meals /api/meal", () => {
   describe("TC-302 Edit meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      database.getConnection(function (err, connection) {
-        if (err) throw err;
-        connection.query(CLEAR_DB, function (error, results, fields) {
-          connection.release();
-          if (err) throw err;
+      pool.query(CLEAR_DB, function (error, results, fields) {
+          if (error) throw error;
           logger.debug("beforeEach done");
           done();
         });
-      });
     });
 
     it("302-1 Missing required field", (done) => {
@@ -162,15 +155,15 @@ describe("Manage meals /api/meal", () => {
   describe("TC-303 Request list of meals", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      database.getConnection(function (err, connection) {
-        if (err) throw err;
-        connection.query(CLEAR_DB, function (error, results, fields) {
-          connection.release();
-          if (err) throw err;
+      pool.query(CLEAR_DB, function (error, results, fields) {
+          if (error) throw error;
           logger.debug("beforeEach done");
+          pool.query(ADD_MEAL, function (error, results, fields) {
+            if (error) throw error;
+            logger.debug("beforeEach done");
+          });
           done();
         });
-      });
     });
 
     it("303-1 Return list of meals", (done) => {
@@ -181,31 +174,35 @@ describe("Manage meals /api/meal", () => {
           res.should.be.an("object");
           let { status, result } = res.body;
           status.should.equals(200);
+          logger.warn(result);
           result.should.be.an("array");
           done();
         });
     });
   });
   describe("TC-304 Request meal details", () => {
+    let mealId = 0;
     beforeEach((done) => {
       logger.debug("beforeEach called");
-      database.getConnection(function (err, connection) {
-        if (err) throw err;
-
-        connection.query(CLEAR_DB, function (error, results, fields) {
-          connection.release();
-
-          if (err) throw err;
+      pool.query(CLEAR_DB, function (error, results, fields) {
+          if (error) throw error;
           logger.debug("beforeEach done");
-          done();
+          pool.query(ADD_MEAL, function (error, results, fields) {
+            if (error) throw error;
+            else{
+              mealId = results.insertId;
+              logger.warn("real mealid: "+mealId);
+            }
+            done();
+            logger.debug("beforeEach done");
+          });
         });
-      });
     });
 
     it("304-1 Meal does not exist", (done) => {
       chai
         .request(index)
-        .get("/api/meal/99999")
+        .get("/api/meal/9999999")
         .end((req, res) => {
           res.should.be.an("object");
           let { status, message } = res.body;
@@ -214,21 +211,29 @@ describe("Manage meals /api/meal", () => {
           done();
         });
     });
+
+    it("304-2 Meal details get returned", (done) => {
+      chai
+        .request(index)
+        .get("/api/meal/"+mealId)
+        .end((req, res) => {
+          res.should.be.an("object");
+          let { status, result } = res.body;
+          status.should.equals(200);
+          result.should.be.an("array");
+          done();
+        });
+    });
   });
   describe("TC-305 Delete meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
 
-      database.getConnection(function (err, connection) {
-        if (err) throw err;
-        connection.query(CLEAR_DB, function (error, results, fields) {
-          connection.release();
-
-          if (err) throw err;
+      pool.query(CLEAR_DB, function (error, results, fields) {
+          if (error) throw error;
           logger.debug("beforeEach done");
           done();
         });
-      });
     });
 
     it("305-2 Not logged in", (done) => {

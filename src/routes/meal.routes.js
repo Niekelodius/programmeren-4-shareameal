@@ -15,14 +15,12 @@ router.put(
   "/api/meal/:mealId",
   validateToken,
   mealController.validateMealCreation,
-  mealController.checkAuthority,
   mealController.updateMealById
 );
 router.get("/api/meal/:mealId", mealController.getMealById);
 router.delete(
   "/api/meal/:mealId",
   validateToken,
-  mealController.checkAuthority,
   mealController.deleteMeal
 );
 
