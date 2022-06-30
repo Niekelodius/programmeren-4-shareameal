@@ -10,6 +10,8 @@ const assert = require("assert");
 const { jwtSecretKey, logger } = require("../../../src/config/config");
 const index = require("../../../index");
 const res = require("express/lib/response");
+const { expect } = require("chai");
+const { stat } = require("fs");
 chai.should();
 chai.use(chaiHttp);
 
@@ -79,9 +81,46 @@ describe("Manage meals /api/meal", () => {
         })
         .end((req, res) => {
           let { error, status } = res.body;
+          status.should.equals(401);
           error.should.be
             .a("string")
             .that.equals("Authorization header missing!");
+          done();
+        });
+    });
+    it("301-3 Succesfully added meal", (done) => {
+      chai
+        .request(index)
+        .post("/api/meal")
+        .auth(validToken, { type: "bearer" })
+        .send({
+          name: "Friet",
+          description: "Friet met mayo",
+          isActive: true,
+          isVega: false,
+          isVegan: true,
+          isToTakeHome: true,
+          maxAmountOfParticipants: 5,
+          price: 5.99, 
+          dateTime: "2022-08-23T22:00:00.000Z",
+          imageUrl: "https://imgur.com/a/0WO84",
+          allergenes: []
+        })
+        .end((req, res) => {
+          let { result, status } = res.body;
+          status.should.equals(201);
+          expect(result).to.deep.include({
+            isActive: 1,
+            isVega: 0,
+            isVegan: 1,
+            isToTakeHome: 1,
+            maxAmountOfParticipants: 5,
+            price: "5.99",
+            imageUrl: "https://imgur.com/a/0WO84",
+            name:"Friet",
+            description: "Friet met mayo",
+            allergenes: ""
+          })
           done();
         });
     });
@@ -91,16 +130,24 @@ describe("Manage meals /api/meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
       pool.query(CLEAR_DB, function (error, results, fields) {
+        if (error) throw error;
+        logger.debug("beforeEach done");
+        pool.query(ADD_MEAL, function (error, results, fields) {
           if (error) throw error;
-          logger.debug("beforeEach done");
+          else{
+            mealId = results.insertId;
+            logger.warn("real mealid: "+mealId);
+          }
           done();
+          logger.debug("beforeEach done");
         });
+      });
     });
 
     it("302-1 Missing required field", (done) => {
       chai
         .request(index)
-        .put("/api/meal/1")
+        .put("/api/meal/"+mealId)
         .auth(validToken, { type: "bearer" })
         .send({
           description: "Friet met mayo",
@@ -112,7 +159,7 @@ describe("Manage meals /api/meal", () => {
           price: 5.99,
           dateTime: "2022-08-23",
           imageUrl: "https://imgur.com/a/0WO84",
-          allergenes: "aardappel",
+          allergenes: ["aardappel", "mayo"],
         })
         .end((req, res) => {
           res.should.be.an("object");
@@ -128,7 +175,7 @@ describe("Manage meals /api/meal", () => {
     it("302-2 Not logged in", (done) => {
       chai
         .request(index)
-        .put("/api/meal/1")
+        .put("/api/meal/"+mealId)
         .send({
           name: "Frietje",
           description: "Friet met mayo",
@@ -140,7 +187,7 @@ describe("Manage meals /api/meal", () => {
           price: 5.99,
           dateTime: "2022-08-23",
           imageUrl: "https://imgur.com/a/0WO84",
-          allergenes: "aardappel",
+          allergenes: ["aardappel", "mayo"],
         })
         .end((req, res) => {
           let { error, status } = res.body;
@@ -148,6 +195,72 @@ describe("Manage meals /api/meal", () => {
           error.should.be
             .a("string")
             .that.equals("Authorization header missing!");
+          done();
+        });
+    });
+    it("302-4 Meal doesn't exist", (done) => {
+      chai
+        .request(index)
+        .put("/api/meal/99999999")
+        .auth(validToken, { type: "bearer" })
+        .send({
+          name: "Frietje",
+          description: "Friet met mayo",
+          isActive: true,
+          isVega: false,
+          isVegan: true,
+          isToTakeHome: true,
+          maxAmountOfParticipants: 5,
+          price: 5.99,
+          dateTime: "2022-08-23",
+          imageUrl: "https://imgur.com/a/0WO84",
+          allergenes: ["aardappel", "mayo"],
+        })
+        .end((req, res) => {
+          let { message, status } = res.body;
+          status.should.equals(404);
+          message.should.be
+            .a("string")
+            .that.equals("Meal does not exist");
+          done();
+        });
+    });
+    it("302-5 Succesfully edited meal", (done) => {
+      chai
+        .request(index)
+        .put("/api/meal/"+mealId)
+        .auth(validToken, { type: "bearer" })
+        .send({
+          name: "Frietjes",
+          description: "Frietjes met mayo",
+          isActive: false,
+          isVega: true,
+          isVegan: false,
+          isToTakeHome: false,
+          maxAmountOfParticipants: 6,
+          price: 6.99,
+          dateTime: "2022-08-23",
+          imageUrl: "https://imgur.com/a/0WO84",
+          allergenes: ["aardappel", "mayo"],
+        })
+        
+        .end((req, res) => {
+        
+          let { result, status } = res.body;
+          status.should.equals(200);
+          logger.warn("result: "+result);
+          expect(result).to.deep.include({
+            isActive: 0,
+            isVega: 1,
+            isVegan: 0,
+            isToTakeHome: 0,
+            maxAmountOfParticipants: 6,
+            price: "6.99",
+            imageUrl: "https://imgur.com/a/0WO84",
+            name:"Frietjes",
+            description: "Frietjes met mayo",
+            allergenes: ""
+          })
           done();
         });
     });
@@ -174,7 +287,8 @@ describe("Manage meals /api/meal", () => {
           res.should.be.an("object");
           let { status, result } = res.body;
           status.should.equals(200);
-          logger.warn(result);
+         logger.warn(result);
+          var time = new Date();
           result.should.be.an("array");
           done();
         });
@@ -220,7 +334,18 @@ describe("Manage meals /api/meal", () => {
           res.should.be.an("object");
           let { status, result } = res.body;
           status.should.equals(200);
-          result.should.be.an("array");
+          expect(result).to.deep.include({
+            isActive: 1,
+            isVega: 0,
+            isVegan: 0,
+            isToTakeHome: 1,
+            maxAmountOfParticipants: 4,
+            price: '12.75',
+            imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+            name:"Pasta Bolognese met tomaat, spekjes en kaas",
+            description: "Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!",
+            allergenes: 'gluten,lactose'
+          })
           done();
         });
     });
@@ -230,25 +355,43 @@ describe("Manage meals /api/meal", () => {
       logger.debug("beforeEach called");
 
       pool.query(CLEAR_DB, function (error, results, fields) {
+        if (error) throw error;
+        logger.debug("beforeEach done");
+        pool.query(ADD_MEAL, function (error, results, fields) {
           if (error) throw error;
           logger.debug("beforeEach done");
-          done();
+        });
+        done();
         });
     });
-
     it("305-2 Not logged in", (done) => {
       chai
         .request(index)
         .delete("/api/meal/99999")
         .end((req, res) => {
           let { error, status } = res.body;
+          status.should.equals(401);
           error.should.be
             .a("string")
             .that.equals("Authorization header missing!");
           done();
         });
     });
-    it("305-3 Meal does not exist", (done) => {
+    it("305-3 Does not own the meal", (done) => {
+      chai
+        .request(index)
+        .delete("/api/meal/"+mealId)
+        .auth(validToken, { type: "bearer" })
+        .end((req, res) => {
+          let { message, status } = res.body;
+          status.should.equals(403);
+          message.should.be
+            .a("string")
+            .that.equals("Unauthorized");
+          done();
+        });
+    });
+    it("305-4 Meal does not exist", (done) => {
       chai
         .request(index)
         .get("/api/meal/99999")

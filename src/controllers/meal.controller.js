@@ -20,8 +20,8 @@ let mealController = {
       price,
       allergenes,
     } = meal;
-
-    logger.debug("Raw mealdata: " + meal);
+    logger.debug("Time " + meal.dateTime);
+    logger.debug("Raw mealdata: " + meal[0]);
     try {
       assert(typeof name == "string", "Name must be filled in and a string");
       assert(
@@ -35,6 +35,7 @@ let mealController = {
       assert(typeof dateTime == "string", "Must be a string");
       assert(typeof imageUrl == "string", "Must be a string");
       assert(typeof allergenes == "object", "Must be an object/array");
+      logger.debug(typeof meal.allergenes);
       assert(typeof maxAmountOfParticipants == "number", "Must be a number");
       assert(typeof price == "number", "Must be a number");
       logger.debug("Validation complete");
@@ -61,20 +62,7 @@ let mealController = {
       `SELECT cookId FROM meal WHERE id = ${mealId};`,
       function (error, results, fields) {
         cookId = results[0].cookId;
-      }
-    );
-    pool.query(
-      `SELECT roles FROM user WHERE id = ${userId};`,
-      function (error, results, fields) {
-        if (!(cookId === userId || results[0].roles === "editor")) {
-          logger.debug(
-            "UserId: " +
-              userId +
-              " cookId: " +
-              cookId +
-              " user roles: " +
-              results[0].roles
-          );
+        if (!(cookId === userId )){
           const err = {
             status: 403,
             message: "Unauthorized",
@@ -86,6 +74,7 @@ let mealController = {
         }
       }
     );
+
   },
 
   getMeals: (req, res) => {
@@ -106,19 +95,34 @@ let mealController = {
     const token = auth.substring(7, auth.length);
     const encodedLoad = jwt.decode(token);
     let cookId = encodedLoad.userId;
+    meal.dateTime = meal.dateTime.replace("T", " ").substring(0, 19);
+  //   meal.dateTime = ;
+  //   convertOldDateToMySqlDate(pp) {
+  //     let dated = pp;
+  //     dated = dated.replace("T", " ").substring(0, 19);
+  //     return dated;
+  // },
+    // meal.isVega = fnConvertBooleanToNumber(meal.isVega);
+    // meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
+    // meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
 
-    meal.isVega = fnConvertBooleanToNumber(meal.isVega);
-    meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
-    meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
+    // let test = meal.allergenes
+    // const entries = Object.entries(meal.allergenes);
+    // logger.debug("array " + entries);
 
-    meal.allergenes = meal.allergenes.toString();
+    meal.allergenes = `${meal.allergenes}`;
 
+
+    // meal.allergenes = meal.allergenes.toString();
+    // meal.allergenes = join("', '", meal.allergenes);
+    logger.debug("meal " + meal.allergenes);
+    logger.debug(meal.dateTime);
     logger.debug("Converted meal data: " + meal);
 
     pool.query(
       "INSERT INTO meal " +
-        "(name, description, isVega, isVegan, isToTakeHome, dateTime, imageUrl, maxAmountOfParticipants, price, allergenes, cookId) " +
-        "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "(name, description, isVega, isVegan, isToTakeHome, dateTime, imageUrl, maxAmountOfParticipants, price, allergenes, isActive, cookId) " +
+        "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         meal.name,
         meal.description,
@@ -129,7 +133,9 @@ let mealController = {
         meal.imageUrl,
         meal.maxAmountOfParticipants,
         meal.price,
+      
         meal.allergenes,
+        meal.isActive,
         cookId,
       ],
       function (error, results, fields) {
@@ -142,12 +148,14 @@ let mealController = {
           };
           next(err);
         } else {
-          logger.info("Added meal: " + meal);
-          meal.id = results.insertId;
-          res.status(201).json({
-            status: 201,
-            result: meal,
-          });
+          pool.query( `SELECT * FROM meal WHERE id = ${results.insertId};`, function (error, results, fields){
+            res.status(201).json({
+              status: 201,
+              result: results[0] ,
+            });
+            logger.warn("time "+ results[0].dateTime);
+            logger.info("Added meal: " + results );
+          })
         }
       }
     );
@@ -161,6 +169,8 @@ let mealController = {
     meal.isVega = fnConvertBooleanToNumber(meal.isVega);
     meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
     meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
+
+    meal.allergenes = `${meal.allergenes}`;
 
     logger.info("Converted meal data: " + meal);
 
@@ -189,11 +199,13 @@ let mealController = {
           };
           next(error);
         } else {
-          logger.info("Edited meal: " + meal);
-          res.status(200).json({
-            status: 200,
-            result: meal,
-          });
+          pool.query( `SELECT * FROM meal WHERE id = ${currentId};`, function (error, results, fields){
+            res.status(200).json({
+              status: 200,
+              result: results[0] ,
+            });
+            logger.warn(results[0]);
+          })
         }
       }
     );
@@ -209,7 +221,7 @@ let mealController = {
           logger.info("Meal: " + results);
           res.status(200).json({
             status: 200,
-            result: results,
+            result: results[0],
           });
         } else {
           logger.debug("Could not find mealId: " + mealId);
@@ -223,6 +235,32 @@ let mealController = {
     );
   },
 
+  // checkAuthority:(req, res, next) => {
+  //   const auth = req.headers.authorization;
+  //   const token = auth.substring(7, auth.length);
+  //   const encodedLoad = jwt.decode(token);
+  //   let cookId = encodedLoad.userId;
+  //   const mealId = req.params.mealId;
+  //   // pool.query(
+  //   //   `SELECT cookId FROM meal WHERE id = ${mealId};`,
+  //   //   function (error, results, fields) {
+  //   //     if (error) throw error;
+  //   //     logger.info("Deleting meal: " + mealId);
+  //   //     logger.warn(results[0]);
+  //   //     // if (results[0].cookId == cookId) {
+  //   //     //   next();
+  //   //     // }else{
+  //   //       const error = {
+  //   //         status: 403,
+  //   //         message: "Unauthorized",
+  //   //       };
+  //   //       next(error);
+  //   //     // }
+  //   //   }
+  //   // );
+  //   next();
+  // },
+
   deleteMeal: (req, res, next) => {
     const mealId = req.params.mealId;
     let meal;
@@ -232,7 +270,7 @@ let mealController = {
       function (error, results, fields) {
         if (error) throw error;
         logger.info("Deleting meal: " + mealId);
-        meal = results;
+        meal = results[0];
       }
     );
 
