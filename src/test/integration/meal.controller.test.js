@@ -16,13 +16,14 @@ chai.should();
 chai.use(chaiHttp);
 
 let validToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQ0LCJpYXQiOjE2NTY1ODU4MDUsImV4cCI6MTY1NzYyMjYwNX0.uo-dQ3uSh0jkLGY3oEnIFpRVZ6hwzsSxqrZsCdN4P4c";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExOTcsImlhdCI6MTY1NjcxNTUzMCwiZXhwIjoxNjU3NzUyMzMwfQ.qIhrntd2ffch7tHzc-EmJVi-Io8SlSQ_s9x_iGLdpK4";
 const invalidToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU";
 
 const CLEAR_DB = "DELETE FROM `meal`;";
-const ADD_MEAL = "INSERT INTO `meal` VALUES (1,1,0,0,1,'2022-03-22 17:35:00',4,12.75,'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',1,'2022-02-26 18:12:40.048998','2022-04-26 12:33:51.000000','Pasta Bolognese met tomaat, spekjes en kaas','Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!','gluten,lactose')"
-
+const ADD_MEAL = "INSERT INTO `meal` "+
+"(`id`, `isActive`, `isVega`, `isVegan`, `isToTakeHome`, `dateTime`, `maxAmountOfParticipants`,`price`, `imageUrl`, `createDate`, `updateDate`, `name`, `description`, `allergenes` )"+
+"VALUES (1,1,0,0,1,'2022-03-22 17:35:00',4,12.75,'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg','2022-02-26 18:12:40.048998','2022-04-26 12:33:51.000000','Pasta Bolognese met tomaat, spekjes en kaas','Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!','gluten,lactose')"
 describe("Manage meals /api/meal", () => {
   describe("TC-301 Add meal", () => {
     beforeEach((done) => {

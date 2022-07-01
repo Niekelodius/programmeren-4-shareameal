@@ -57,12 +57,13 @@ let mealController = {
     const encodedLoad = jwt.decode(token);
     const mealId = req.params.mealId;
     const userId = encodedLoad.userId;
+    const userRole = encodedLoad.roles;
     let cookId;
     pool.query(
       `SELECT cookId FROM meal WHERE id = ${mealId};`,
       function (error, results, fields) {
         cookId = results[0].cookId;
-        if (!(cookId === userId )){
+        if (!(cookId === userId || userRole == "admin")){
           const err = {
             status: 403,
             message: "Unauthorized",

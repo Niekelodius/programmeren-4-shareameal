@@ -15,10 +15,10 @@ chai.use(chaiHttp);
 const { expect } = require("chai");
 
 let validToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQ0LCJpYXQiOjE2NTY1ODU4MDUsImV4cCI6MTY1NzYyMjYwNX0.uo-dQ3uSh0jkLGY3oEnIFpRVZ6hwzsSxqrZsCdN4P4c";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzNzYsImlhdCI6MTY1NjcxNjA5NiwiZXhwIjoxNjU3NzUyODk2fQ.UXnmO_ajuVUKHukMjP-LqBvuDSpzG3sO3ds7X7z9lX0";
 const invalidToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU";
-const CLEAR_DB = "DELETE FROM `user`;";
+  const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'test@avans.nl' OR emailAdress = 'ng@avans.nl';";
 const ADD_USER =
   "INSERT INTO `user`" +
   "(`firstName`, `lastName`, `street`, `city`, `password`, `emailAdress`, `phoneNumber`,`roles` )" +
