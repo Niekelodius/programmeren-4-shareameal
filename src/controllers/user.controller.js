@@ -72,10 +72,43 @@ let userController = {
               status: 404,
               message: "User does not exist",
             };
+            next(err);
+          } else {
+            next();
           }
         }
       );
-      next();
+    } catch (err) {
+      const error = {
+        status: 404,
+        message: err.message,
+      };
+      console.log(error);
+      next(error);
+    }
+  },
+
+  userFinderAlt: (req, res, next) => {
+    const userId = req.params.userId;
+    try {
+      assert(Number.isInteger(parseInt(userId)), "Id must be a number");
+      pool.query(
+        `SELECT * FROM user WHERE id = ${userId};`,
+        function (err, results, fields) {
+          if (err) throw err;
+          user = results;
+          if (results.length < 1) {
+            logger.debug("User does not exists: " + userId);
+            const err = {
+              status: 400,
+              message: "User does not exist",
+            };
+            next(err);
+          } else {
+            next();
+          }
+        }
+      );
     } catch (err) {
       const error = {
         status: 400,
@@ -114,12 +147,16 @@ let userController = {
           next(err);
         } else {
           logger.debug("Succesfully added user to database: " + user);
-          user.userId = results.insertId;
-          res.status(200).json({
-            status: 200,
-            message: "Succesfully added user to database",
-            result: user,
-          });
+          pool.query(
+            `SELECT * FROM user WHERE id = ${results.insertId};`,
+            function (error, results, fields) {
+              res.status(200).json({
+                status: 200,
+                result: results[0],
+              });
+              logger.warn(results[0]);
+            }
+          );
         }
       }
     );
@@ -190,11 +227,46 @@ let userController = {
         if (error) throw error;
         logger.info("Amount of users: " + results.length);
         res.status(200).json({
-          statusCode: 200,
+          status: 200,
           result: results,
         });
       }
     );
+  },
+
+  checkAuthority: (req, res, next) => {
+    const editId = req.params.userId;
+    const auth = req.headers.authorization;
+    const token = auth.substring(7, auth.length);
+    const encodedLoad = jwt.decode(token);
+    const mealId = req.params.mealId;
+    const userId = encodedLoad.userId;
+    let cookId;
+    if (userId == editId) {
+      next();
+    } else {
+      const err = {
+        status: 403,
+        message: "Unauthorized",
+      };
+      next(err);
+    }
+    // pool.query(
+    //   `SELECT id FROM user WHERE id = ${mealId};`,
+    //   function (error, results, fields) {
+    //     cookId = results[0].cookId;
+    //     if (!(cookId === userId )){
+    //       const err = {
+    //         status: 403,
+    //         message: "Unauthorized",
+    //       };
+    //       next(err);
+    //     } else {
+    //       logger.info("User authorized");
+    //       next();
+    //     }
+    //   }
+    // );
   },
 
   // checkAuthority: (req, res, next) => {
@@ -271,7 +343,7 @@ let userController = {
           logger.info("Found user: " + results);
           res.status(200).json({
             status: 200,
-            result: results,
+            result: results[0],
           });
         } else {
           logger.error("Could not find user: " + err);

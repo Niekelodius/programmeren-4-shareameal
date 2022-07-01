@@ -8,7 +8,7 @@ router.post("/api/user", userController.validateUser, userController.addUser);
 router.put(
   "/api/user/:userId",
   validateToken,
-  userController.userFinder,
+  userController.userFinderAlt,
   userController.validateUser,
   userController.editUser
 );
@@ -25,7 +25,8 @@ router.get(
 router.delete(
   "/api/user/:userId",
   validateToken,
-  userController.userFinder,
+  userController.userFinderAlt,
+  userController.checkAuthority,
   userController.deleteUser
 );
 
