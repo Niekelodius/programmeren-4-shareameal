@@ -295,6 +295,7 @@ describe("Manage meals /api/meal", () => {
 
             .end((req, res) => {
               let { result, status } = res.body;
+              logger.warn(res.body);
               status.should.equals(200);
               logger.warn("result: " + result);
               expect(result).to.deep.include({
