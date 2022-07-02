@@ -165,11 +165,15 @@ describe("Manage meals /api/meal", () => {
         logger.debug("beforeEach done");
         pool.query(ADD_MEAL, function (error, results, fields) {
           if (error) throw error;
-          else {
-            mealId = results.insertId;
-            logger.warn("real mealid: " + mealId);
-          }
-          done();
+          mealId = results.insertId;
+          pool.query(CLEAR_USER, function (error, results, fields) {
+            if (error) throw error;
+            pool.query(ADD_USER, function (error, results, fields) {
+              if (error) throw error;
+              logger.debug("beforeEach done");
+              done();
+            });
+          });
           logger.debug("beforeEach done");
         });
       });
@@ -257,39 +261,55 @@ describe("Manage meals /api/meal", () => {
     it("302-5 Succesfully edited meal", (done) => {
       chai
         .request(index)
-        .put("/api/meal/" + mealId)
-        .auth(validToken, { type: "bearer" })
+        .post("/api/auth/login")
         .send({
-          name: "Frietjes",
-          description: "Frietjes met mayo",
-          isActive: false,
-          isVega: true,
-          isVegan: false,
-          isToTakeHome: false,
-          maxAmountOfParticipants: 6,
-          price: 6.99,
-          dateTime: "2022-08-23",
-          imageUrl: "https://imgur.com/a/0WO84",
-          allergenes: ["aardappel", "mayo"],
+          emailAdress: "test@avans.nl",
+          password: "D389!!ach",
         })
-
         .end((req, res) => {
-          let { result, status } = res.body;
+          res.should.be.an("object");
+          let { status, result } = res.body;
+
+          logger.warn(result);
           status.should.equals(200);
-          logger.warn("result: " + result);
-          expect(result).to.deep.include({
-            isActive: 0,
-            isVega: 1,
-            isVegan: 0,
-            isToTakeHome: 0,
-            maxAmountOfParticipants: 6,
-            price: "6.99",
-            imageUrl: "https://imgur.com/a/0WO84",
-            name: "Frietjes",
-            description: "Frietjes met mayo",
-            allergenes: "",
-          });
-          done();
+          validToken = result.token;
+          expect(result).to.have.own.property("token");
+          chai
+            .request(index)
+            .put("/api/meal/" + mealId)
+            .auth(validToken, { type: "bearer" })
+            .send({
+              name: "Frietjes",
+              description: "Frietjes met mayo",
+              isActive: false,
+              isVega: true,
+              isVegan: false,
+              isToTakeHome: false,
+              maxAmountOfParticipants: 6,
+              price: 6.99,
+              dateTime: "2022-08-23",
+              imageUrl: "https://imgur.com/a/0WO84",
+              allergenes: ["aardappel", "mayo"],
+            })
+
+            .end((req, res) => {
+              let { result, status } = res.body;
+              status.should.equals(200);
+              logger.warn("result: " + result);
+              expect(result).to.deep.include({
+                isActive: 0,
+                isVega: 1,
+                isVegan: 0,
+                isToTakeHome: 0,
+                maxAmountOfParticipants: 6,
+                price: "6.99",
+                imageUrl: "https://imgur.com/a/0WO84",
+                name: "Frietjes",
+                description: "Frietjes met mayo",
+                allergenes: "",
+              });
+              done();
+            });
         });
     });
   });
