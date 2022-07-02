@@ -281,6 +281,7 @@ describe("Manage meals /api/meal", () => {
             .send({
               name: "Frietjes",
               description: "Frietjes met mayo",
+              id: 1,
               isActive: false,
               isVega: true,
               isVegan: false,
@@ -408,6 +409,7 @@ describe("Manage meals /api/meal", () => {
         if (error) throw error;
         logger.debug("beforeEach done");
         pool.query(ADD_MEAL, function (error, results, fields) {
+          mealId = results.insertId;
           if (error) throw error;
           logger.debug("beforeEach done");
         });
