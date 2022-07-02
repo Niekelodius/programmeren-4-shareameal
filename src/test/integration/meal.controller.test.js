@@ -21,18 +21,30 @@ const invalidToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU";
 
 const CLEAR_DB = "DELETE FROM `meal`;";
-const ADD_MEAL = "INSERT INTO `meal` "+
-"(`id`, `isActive`, `isVega`, `isVegan`, `isToTakeHome`, `dateTime`, `maxAmountOfParticipants`,`price`, `imageUrl`, `createDate`, `updateDate`, `name`, `description`, `allergenes` )"+
-"VALUES (1,1,0,0,1,'2022-03-22 17:35:00',4,12.75,'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg','2022-02-26 18:12:40.048998','2022-04-26 12:33:51.000000','Pasta Bolognese met tomaat, spekjes en kaas','Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!','gluten,lactose')"
+const CLEAR_USER = "DELETE FROM `user` WHERE emailAdress = 'test@avans.nl';";
+const ADD_MEAL =
+  "INSERT INTO `meal` " +
+  "(`id`, `isActive`, `isVega`, `isVegan`, `isToTakeHome`, `dateTime`, `maxAmountOfParticipants`,`price`, `imageUrl`, `createDate`, `updateDate`, `name`, `description`, `allergenes` )" +
+  "VALUES (1,1,0,0,1,'2022-03-22 17:35:00',4,12.75,'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg','2022-02-26 18:12:40.048998','2022-04-26 12:33:51.000000','Pasta Bolognese met tomaat, spekjes en kaas','Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!','gluten,lactose')";
+const ADD_USER =
+  "INSERT INTO `user`" +
+  "(`firstName`, `lastName`, `street`, `city`, `password`, `emailAdress`, `phoneNumber`,`roles` )" +
+  "VALUES ('Removable', 'man', 'behind', 'you', 'D389!!ach', 'test@avans.nl', '05322222222', 'editor');  ";
 describe("Manage meals /api/meal", () => {
   describe("TC-301 Add meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
-        pool.query(CLEAR_DB, function (error, results, fields) {
+      pool.query(CLEAR_DB, function (error, results, fields) {
+        if (error) throw error;
+        pool.query(CLEAR_USER, function (error, results, fields) {
           if (error) throw error;
-          logger.debug("beforeEach done");
-          done();
+          pool.query(ADD_USER, function (error, results, fields) {
+            if (error) throw error;
+            logger.debug("beforeEach done");
+            done();
+          });
         });
+      });
     });
 
     it("301-1 Missing required field", (done) => {
@@ -92,37 +104,55 @@ describe("Manage meals /api/meal", () => {
     it("301-3 Succesfully added meal", (done) => {
       chai
         .request(index)
-        .post("/api/meal")
-        .auth(validToken, { type: "bearer" })
+        .post("/api/auth/login")
         .send({
-          name: "Friet",
-          description: "Friet met mayo",
-          isActive: true,
-          isVega: false,
-          isVegan: true,
-          isToTakeHome: true,
-          maxAmountOfParticipants: 5,
-          price: 5.99, 
-          dateTime: "2022-08-23T22:00:00.000Z",
-          imageUrl: "https://imgur.com/a/0WO84",
-          allergenes: []
+          emailAdress: "test@avans.nl",
+          password: "D389!!ach",
         })
         .end((req, res) => {
-          let { result, status } = res.body;
-          status.should.equals(201);
-          expect(result).to.deep.include({
-            isActive: 1,
-            isVega: 0,
-            isVegan: 1,
-            isToTakeHome: 1,
-            maxAmountOfParticipants: 5,
-            price: "5.99",
-            imageUrl: "https://imgur.com/a/0WO84",
-            name:"Friet",
-            description: "Friet met mayo",
-            allergenes: ""
-          })
-          done();
+          res.should.be.an("object");
+          let { status, result } = res.body;
+
+          logger.warn(result);
+          status.should.equals(200);
+          validToken = result.token;
+          expect(result).to.have.own.property("token");
+          // done();
+          chai
+            .request(index)
+            .post("/api/meal")
+            .auth(validToken, { type: "bearer" })
+            .send({
+              name: "Friet",
+              description: "Friet met mayo",
+              isActive: true,
+              isVega: false,
+              isVegan: true,
+              isToTakeHome: true,
+              cookId: 1,
+              maxAmountOfParticipants: 5,
+              price: 5.99,
+              dateTime: "2022-08-23T22:00:00.000Z",
+              imageUrl: "https://imgur.com/a/0WO84",
+              allergenes: [],
+            })
+            .end((req, res) => {
+              let { result, status } = res.body;
+              status.should.equals(201);
+              expect(result).to.deep.include({
+                isActive: 1,
+                isVega: 0,
+                isVegan: 1,
+                isToTakeHome: 1,
+                maxAmountOfParticipants: 5,
+                price: "5.99",
+                imageUrl: "https://imgur.com/a/0WO84",
+                name: "Friet",
+                description: "Friet met mayo",
+                allergenes: "",
+              });
+              done();
+            });
         });
     });
   });
@@ -135,9 +165,9 @@ describe("Manage meals /api/meal", () => {
         logger.debug("beforeEach done");
         pool.query(ADD_MEAL, function (error, results, fields) {
           if (error) throw error;
-          else{
+          else {
             mealId = results.insertId;
-            logger.warn("real mealid: "+mealId);
+            logger.warn("real mealid: " + mealId);
           }
           done();
           logger.debug("beforeEach done");
@@ -148,7 +178,7 @@ describe("Manage meals /api/meal", () => {
     it("302-1 Missing required field", (done) => {
       chai
         .request(index)
-        .put("/api/meal/"+mealId)
+        .put("/api/meal/" + mealId)
         .auth(validToken, { type: "bearer" })
         .send({
           description: "Friet met mayo",
@@ -176,7 +206,7 @@ describe("Manage meals /api/meal", () => {
     it("302-2 Not logged in", (done) => {
       chai
         .request(index)
-        .put("/api/meal/"+mealId)
+        .put("/api/meal/" + mealId)
         .send({
           name: "Frietje",
           description: "Friet met mayo",
@@ -220,16 +250,14 @@ describe("Manage meals /api/meal", () => {
         .end((req, res) => {
           let { message, status } = res.body;
           status.should.equals(404);
-          message.should.be
-            .a("string")
-            .that.equals("Meal does not exist");
+          message.should.be.a("string").that.equals("Meal does not exist");
           done();
         });
     });
     it("302-5 Succesfully edited meal", (done) => {
       chai
         .request(index)
-        .put("/api/meal/"+mealId)
+        .put("/api/meal/" + mealId)
         .auth(validToken, { type: "bearer" })
         .send({
           name: "Frietjes",
@@ -244,12 +272,11 @@ describe("Manage meals /api/meal", () => {
           imageUrl: "https://imgur.com/a/0WO84",
           allergenes: ["aardappel", "mayo"],
         })
-        
+
         .end((req, res) => {
-        
           let { result, status } = res.body;
           status.should.equals(200);
-          logger.warn("result: "+result);
+          logger.warn("result: " + result);
           expect(result).to.deep.include({
             isActive: 0,
             isVega: 1,
@@ -258,10 +285,10 @@ describe("Manage meals /api/meal", () => {
             maxAmountOfParticipants: 6,
             price: "6.99",
             imageUrl: "https://imgur.com/a/0WO84",
-            name:"Frietjes",
+            name: "Frietjes",
             description: "Frietjes met mayo",
-            allergenes: ""
-          })
+            allergenes: "",
+          });
           done();
         });
     });
@@ -270,14 +297,14 @@ describe("Manage meals /api/meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
       pool.query(CLEAR_DB, function (error, results, fields) {
+        if (error) throw error;
+        logger.debug("beforeEach done");
+        pool.query(ADD_MEAL, function (error, results, fields) {
           if (error) throw error;
           logger.debug("beforeEach done");
-          pool.query(ADD_MEAL, function (error, results, fields) {
-            if (error) throw error;
-            logger.debug("beforeEach done");
-          });
-          done();
         });
+        done();
+      });
     });
 
     it("303-1 Return list of meals", (done) => {
@@ -288,7 +315,7 @@ describe("Manage meals /api/meal", () => {
           res.should.be.an("object");
           let { status, result } = res.body;
           status.should.equals(200);
-         logger.warn(result);
+          logger.warn(result);
           var time = new Date();
           result.should.be.an("array");
           done();
@@ -300,18 +327,18 @@ describe("Manage meals /api/meal", () => {
     beforeEach((done) => {
       logger.debug("beforeEach called");
       pool.query(CLEAR_DB, function (error, results, fields) {
+        if (error) throw error;
+        logger.debug("beforeEach done");
+        pool.query(ADD_MEAL, function (error, results, fields) {
           if (error) throw error;
+          else {
+            mealId = results.insertId;
+            logger.warn("real mealid: " + mealId);
+          }
+          done();
           logger.debug("beforeEach done");
-          pool.query(ADD_MEAL, function (error, results, fields) {
-            if (error) throw error;
-            else{
-              mealId = results.insertId;
-              logger.warn("real mealid: "+mealId);
-            }
-            done();
-            logger.debug("beforeEach done");
-          });
         });
+      });
     });
 
     it("304-1 Meal does not exist", (done) => {
@@ -330,7 +357,7 @@ describe("Manage meals /api/meal", () => {
     it("304-2 Meal details get returned", (done) => {
       chai
         .request(index)
-        .get("/api/meal/"+mealId)
+        .get("/api/meal/" + mealId)
         .end((req, res) => {
           res.should.be.an("object");
           let { status, result } = res.body;
@@ -341,12 +368,14 @@ describe("Manage meals /api/meal", () => {
             isVegan: 0,
             isToTakeHome: 1,
             maxAmountOfParticipants: 4,
-            price: '12.75',
-            imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
-            name:"Pasta Bolognese met tomaat, spekjes en kaas",
-            description: "Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!",
-            allergenes: 'gluten,lactose'
-          })
+            price: "12.75",
+            imageUrl:
+              "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+            name: "Pasta Bolognese met tomaat, spekjes en kaas",
+            description:
+              "Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!",
+            allergenes: "gluten,lactose",
+          });
           done();
         });
     });
@@ -363,7 +392,7 @@ describe("Manage meals /api/meal", () => {
           logger.debug("beforeEach done");
         });
         done();
-        });
+      });
     });
     it("305-2 Not logged in", (done) => {
       chai
@@ -381,14 +410,12 @@ describe("Manage meals /api/meal", () => {
     it("305-3 Does not own the meal", (done) => {
       chai
         .request(index)
-        .delete("/api/meal/"+mealId)
+        .delete("/api/meal/" + mealId)
         .auth(validToken, { type: "bearer" })
         .end((req, res) => {
           let { message, status } = res.body;
           status.should.equals(403);
-          message.should.be
-            .a("string")
-            .that.equals("Unauthorized");
+          message.should.be.a("string").that.equals("Unauthorized");
           done();
         });
     });

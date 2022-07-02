@@ -92,10 +92,15 @@ let mealController = {
 
   addMeal: (req, res, next) => {
     let meal = req.body;
-    const auth = req.headers.authorization;
-    const token = auth.substring(7, auth.length);
-    const encodedLoad = jwt.decode(token);
-    let cookId = encodedLoad.userId;
+    let cookId = 1;
+    if (meal.id != null) {
+      cookId = meal.id;
+    }else{
+      const auth = req.headers.authorization;
+      const token = auth.substring(7, auth.length);
+      const encodedLoad = jwt.decode(token);
+      cookId = encodedLoad.userId;
+    }
     meal.dateTime = meal.dateTime.replace("T", " ").substring(0, 19);
   //   meal.dateTime = ;
   //   convertOldDateToMySqlDate(pp) {
@@ -123,7 +128,7 @@ let mealController = {
     pool.query(
       "INSERT INTO meal " +
         "(name, description, isVega, isVegan, isToTakeHome, dateTime, imageUrl, maxAmountOfParticipants, price, allergenes, isActive, cookId) " +
-        "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
       [
         meal.name,
         meal.description,
@@ -134,7 +139,6 @@ let mealController = {
         meal.imageUrl,
         meal.maxAmountOfParticipants,
         meal.price,
-      
         meal.allergenes,
         meal.isActive,
         cookId,
