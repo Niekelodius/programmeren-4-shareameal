@@ -61,12 +61,10 @@ let mealController = {
     if (userRole == null) {
       userRole == "no"
     }
-    let cookId;
     pool.query(
       `SELECT cookId FROM meal WHERE id = ${mealId};`,
       function (error, results, fields) {
-        cookId = results[0].cookId;
-        if (!(cookId === userId || userRole == "editor")){
+        if (!(results[0].cookId === userId)){
           const err = {
             status: 403,
             message: "Unauthorized",
