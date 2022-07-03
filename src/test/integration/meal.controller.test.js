@@ -279,6 +279,7 @@ describe("Manage meals /api/meal", () => {
             .put("/api/meal/" + mealId+"?test=test")
             .auth(validToken, { type: "bearer" })
             .send({
+
               name: "Frietjes",
               description: "Frietjes met mayo",
               id: 1,
@@ -290,7 +291,7 @@ describe("Manage meals /api/meal", () => {
               price: 6.99,
               dateTime: "2022-08-23",
               imageUrl: "https://imgur.com/a/0WO84",
-              allergenes: ["aardappel", "mayo"],
+              allergenes: [],
             })
 
             .end((req, res) => {

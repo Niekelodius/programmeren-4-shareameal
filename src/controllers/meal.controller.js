@@ -61,36 +61,32 @@ let mealController = {
     const userRole = encodedLoad.roles;
     if (test) {
       next();
-    }else{
-
-    pool.query(
-      `SELECT cookId FROM meal WHERE id = ${mealId};`,
-      function (error, results, fields) {
-        if (results[0].cookId != 'undefined') {
-          
-
-        if (!(results[0].cookId === userId)){
-          const err = {
-            status: 403,
-            message: "Unauthorized",
-          };
-          next(err);
-        } else {
-          logger.info("User authorized");
-          next();
+    } else {
+      pool.query(
+        `SELECT cookId FROM meal WHERE id = ${mealId};`,
+        function (error, results, fields) {
+          if (typeof results[0].cookId != "undefined") {
+            if (!(results[0].cookId === userId)) {
+              const err = {
+                status: 403,
+                message: "Unauthorized",
+              };
+              next(err);
+            } else {
+              logger.info("User authorized");
+              next();
+            }
+          } else {
+            const err = {
+              status: 403,
+              message: "Unauthorized",
+            };
+            next(err);
+          }
         }
-      }else{
-      const err = {
-        status: 403,
-        message: "Unauthorized",
-      };
-      next(err);
-    }}
-    );
+      );
     }
-
   },
-
 
   getMeals: (req, res) => {
     pool.query("SELECT * FROM meal;", function (error, results, fields) {
@@ -130,21 +126,21 @@ let mealController = {
   addMeal: (req, res, next) => {
     let meal = req.body;
     let cookId = 1;
-    if (typeof(meal.id) != 'undefined' && meal.id != null) {
+    if (typeof meal.id != "undefined" && meal.id != null) {
       cookId = meal.id;
-    }else{
+    } else {
       const auth = req.headers.authorization;
       const token = auth.substring(7, auth.length);
       const encodedLoad = jwt.decode(token);
       cookId = encodedLoad.userId;
     }
     meal.dateTime = meal.dateTime.replace("T", " ").substring(0, 19);
-  //   meal.dateTime = ;
-  //   convertOldDateToMySqlDate(pp) {
-  //     let dated = pp;
-  //     dated = dated.replace("T", " ").substring(0, 19);
-  //     return dated;
-  // },
+    //   meal.dateTime = ;
+    //   convertOldDateToMySqlDate(pp) {
+    //     let dated = pp;
+    //     dated = dated.replace("T", " ").substring(0, 19);
+    //     return dated;
+    // },
     // meal.isVega = fnConvertBooleanToNumber(meal.isVega);
     // meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
     // meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
@@ -154,7 +150,6 @@ let mealController = {
     // logger.debug("array " + entries);
 
     meal.allergenes = `${meal.allergenes}`;
-
 
     // meal.allergenes = meal.allergenes.toString();
     // meal.allergenes = join("', '", meal.allergenes);
@@ -190,14 +185,17 @@ let mealController = {
           };
           next(err);
         } else {
-          pool.query( `SELECT * FROM meal WHERE id = ${results.insertId};`, function (error, results, fields){
-            res.status(201).json({
-              status: 201,
-              result: results[0] ,
-            });
-            logger.warn("time "+ results[0].dateTime);
-            logger.info("Added meal: " + results );
-          })
+          pool.query(
+            `SELECT * FROM meal WHERE id = ${results.insertId};`,
+            function (error, results, fields) {
+              res.status(201).json({
+                status: 201,
+                result: results[0],
+              });
+              logger.warn("time " + results[0].dateTime);
+              logger.info("Added meal: " + results);
+            }
+          );
         }
       }
     );
@@ -210,7 +208,7 @@ let mealController = {
     let cookId = 1;
     if (meal.id != null) {
       cookId = meal.id;
-    }else{
+    } else {
       const auth = req.headers.authorization;
       const token = auth.substring(7, auth.length);
       const encodedLoad = jwt.decode(token);
@@ -246,17 +244,20 @@ let mealController = {
         if (error) {
           const error = {
             status: 404,
-            error: "error"
+            error: "error",
           };
           next(error);
         } else {
-          pool.query( `SELECT * FROM meal WHERE id = ${currentId};`, function (error, results, fields){
-            res.status(200).json({
-              status: 200,
-              result: results[0] ,
-            });
-            logger.warn(results[0]);
-          })
+          pool.query(
+            `SELECT * FROM meal WHERE id = ${currentId};`,
+            function (error, results, fields) {
+              res.status(200).json({
+                status: 200,
+                result: results[0],
+              });
+              logger.warn(results[0]);
+            }
+          );
         }
         // else{
         //   const error = {
