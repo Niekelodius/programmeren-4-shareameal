@@ -182,7 +182,7 @@ let userController = {
         if (error) {
           const error = {
             status: 400,
-            message: error.message,
+            message: "error",
           };
           next(error);
         } else {
