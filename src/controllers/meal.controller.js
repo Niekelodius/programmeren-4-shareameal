@@ -223,7 +223,7 @@ let mealController = {
         if (error) {
           const error = {
             status: 404,
-            error: error.message
+            error: "error"
           };
           next(error);
         }
