@@ -184,6 +184,16 @@ let mealController = {
     let meal = req.body;
     const currentId = req.params.mealId;
 
+    let cookId = 1;
+    if (meal.id != null) {
+      cookId = meal.id;
+    }else{
+      const auth = req.headers.authorization;
+      const token = auth.substring(7, auth.length);
+      const encodedLoad = jwt.decode(token);
+      cookId = encodedLoad.userId;
+    }
+
     meal.isActive = fnConvertBooleanToNumber(meal.isActive);
     meal.isVega = fnConvertBooleanToNumber(meal.isVega);
     meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
