@@ -18,11 +18,12 @@ const { stat } = require("fs");
 let userId = 5;
 
 let validToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQ0LCJpYXQiOjE2NTY1ODU4MDUsImV4cCI6MTY1NzYyMjYwNX0.uo-dQ3uSh0jkLGY3oEnIFpRVZ6hwzsSxqrZsCdN4P4c";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY1Njg0NzE3NSwiZXhwIjoxNjU3ODgzOTc1fQ.61H7DsY8KVpizqLdlda1yf93TjiqYHKVrt69v96HYUY";
 const invalidToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyNywiaWF0IjoxNjUyNzg3NzA4LCJleHAiOjE2NTM4MjQ1MDh9.NAW7Ol_7WrEdPYH1B7-6mKFsGGpX3xPwEQBctIKlPvU";
 const CLEAR_MEAL = "DELETE FROM `meal`;";
-const CLEAR_DB = "DELETE  FROM `user` WHERE emailAdress = 'test@avans.nl' OR emailAdress = 'ng@avans.nl';";
+const CLEAR_DB =
+  "DELETE  FROM `user` WHERE emailAdress = 'test@avans.nl' OR emailAdress = 'ng@avans.nl';";
 const GET_USER = "SELECT id FROM `user` WHERE emailAdress = 'goos@avans.nl';";
 const ADD_USER =
   "INSERT INTO `user`" +
@@ -60,7 +61,7 @@ describe("Manage users /api/user", () => {
           isActive: 1,
           street: "a",
           city: "b",
-          roles: "editor",
+          roles: "admin",
           emailAdress: "ng@avans.nl",
           password: "D1mWW22!",
           phoneNumber: "0651234567",
@@ -85,7 +86,7 @@ describe("Manage users /api/user", () => {
           lastName: "G",
           emailAdress: "ng.avans.nl",
           isActive: true,
-          roles: "editor",
+          roles: "admin",
           street: "a",
           city: "b",
 
@@ -109,7 +110,7 @@ describe("Manage users /api/user", () => {
           firstName: "N",
           lastName: "G",
           isActive: true,
-          roles: "editor",
+          roles: "admin",
           street: "a",
           city: "b",
           password: "",
@@ -133,7 +134,7 @@ describe("Manage users /api/user", () => {
           firstName: "N",
           lastName: "G",
           isActive: true,
-          roles: "editor",
+          roles: "admin",
           street: "a",
           city: "b",
           emailAdress: "test@avans.nl",
@@ -157,7 +158,7 @@ describe("Manage users /api/user", () => {
           firstName: "N",
           lastName: "G",
           isActive: true,
-          roles: "editor",
+          roles: "admin",
           street: "a",
           city: "b",
           emailAdress: "ng@avans.nl",
@@ -172,7 +173,7 @@ describe("Manage users /api/user", () => {
             firstName: "N",
             lastName: "G",
             isActive: 1,
-            roles: "editor",
+            roles: "admin",
             street: "a",
             city: "b",
             emailAdress: "ng@avans.nl",
@@ -532,7 +533,7 @@ describe("Manage users /api/user", () => {
           isActive: 1,
           password: "secret",
           phoneNumber: "06-12345678",
-          roles: "editor,guest",
+          roles: "admin,guest",
           street: "",
           city: "",
         })
@@ -557,7 +558,7 @@ describe("Manage users /api/user", () => {
           isActive: 1,
           password: "secret",
           phoneNumber: "06-12345678",
-          roles: "editor,guest",
+          roles: "admin,guest",
           street: "",
           city: "",
         })
@@ -578,7 +579,7 @@ describe("Manage users /api/user", () => {
         .send({
           firstName: "Removable",
           lastName: "man",
-          roles: "editor",
+          roles: "admin",
           street: "behind",
           phoneNumber: "0657776634",
           city: "you",
@@ -600,7 +601,7 @@ describe("Manage users /api/user", () => {
         .send({
           firstName: "Removable",
           lastName: "man",
-          roles: "editor",
+          roles: "admin",
           street: "behind",
           phoneNumber: "05322222222",
           city: "you",
@@ -616,28 +617,47 @@ describe("Manage users /api/user", () => {
           done();
         });
     });
-    //   it("205-6 User succesfully edited", (done) => {
-    //     chai
-    //       .request(index)
-    //       .put("/api/user/" + userId)
-    //       .send({
-    //         firstName: "Removable",
-    //         lastName: "man",
-    //         roles: "editor",
-    //         street: "behind",
-    //         phoneNumber: "05322222222",
-    //         city: "you",
-    //         emailAdress: "test@avans.nl",
-    //         password: "D1mwwVhTT22!"
-    //       })
-    //       .end((req, res) => {
-    //         let { error, status } = res.body;
-    //         error.should.be
-    //           .a("string")
-    //           .that.equals("Authorization header missing!");
-    //         done();
-    //       });
-    //   });
+    it("205-6 User succesfully edited", (done) => {
+      // chai
+      //   .request(index)
+      //   .post("/api/auth/login")
+      //   .send({
+      //     emailAdress: "test@avans.nl",
+      //     password: "D389!!ach",
+      //   })
+      //   .end((req, res) => {
+      //     res.should.be.an("object");
+      //     let { status, result } = res.body;
+
+      //     logger.warn(result);
+      //     status.should.equals(200);
+      //     validToken = result.token;
+      //     expect(result).to.have.own.property("token");
+          chai
+            .request(index)
+            .put("/api/user/" + userId)
+            .auth(validToken)
+            .send({
+              firstName: "Removable",
+              lastName: "man",
+              roles: "admin",
+              street: "behind",
+              phoneNumber: "05322222222",
+              city: "you",
+              emailAdress: "test@avans.nl",
+              password: "D1mwwVhTT22!",
+            })
+            .end((req, res) => {
+              let {error, status } = res.body;
+              logger.warn(error);
+              status.should.equals(200);
+              // error.should.be
+              //   .a("string")
+              //   .that.equals("Authorization header missing!");
+              done();
+            });
+        // });
+    });
   });
 
   describe("TC-206 Delete user", () => {

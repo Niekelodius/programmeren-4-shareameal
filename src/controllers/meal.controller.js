@@ -63,7 +63,7 @@ let mealController = {
       `SELECT cookId FROM meal WHERE id = ${mealId};`,
       function (error, results, fields) {
         cookId = results[0].cookId;
-        if (!(cookId === userId || userRole == "admin")){
+        if (!(cookId === userId || userRole == "editor")){
           const err = {
             status: 403,
             message: "Unauthorized",
