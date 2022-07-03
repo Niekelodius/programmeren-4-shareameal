@@ -179,8 +179,6 @@ let userController = {
         userId,
       ],
       function (error, results, fields) {
-        if (error) throw err;
-
         if (error) {
           logger.error("Could not edit user: " + error);
           const error = {
