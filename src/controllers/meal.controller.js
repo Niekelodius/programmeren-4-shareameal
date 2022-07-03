@@ -220,7 +220,14 @@ let mealController = {
         currentId,
       ],
       function (error, results, fields) {
-        if (results.affectedRows == 0 || error) {
+        if (error) {
+          const error = {
+            status: 404,
+            error: error.message
+          };
+          next(error);
+        }
+        if (results.affectedRows == 0) {
           const error = {
             status: 404,
             message: "Meal does not exist",
