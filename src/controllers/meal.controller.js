@@ -217,10 +217,10 @@ let mealController = {
       cookId = encodedLoad.userId;
     }
 
-    meal.isActive = fnConvertBooleanToNumber(meal.isActive);
-    meal.isVega = fnConvertBooleanToNumber(meal.isVega);
-    meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
-    meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
+    // meal.isActive = fnConvertBooleanToNumber(meal.isActive);
+    // meal.isVega = fnConvertBooleanToNumber(meal.isVega);
+    // meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
+    // meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
 
     meal.allergenes = `${meal.allergenes}`;
 
