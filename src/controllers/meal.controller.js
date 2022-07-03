@@ -130,7 +130,7 @@ let mealController = {
   addMeal: (req, res, next) => {
     let meal = req.body;
     let cookId = 1;
-    if (meal.id != null) {
+    if (meal.id != 'undefined') {
       cookId = meal.id;
     }else{
       const auth = req.headers.authorization;
