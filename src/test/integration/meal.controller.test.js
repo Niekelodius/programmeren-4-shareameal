@@ -253,8 +253,8 @@ describe("Manage meals /api/meal", () => {
         })
         .end((req, res) => {
           let { message, status } = res.body;
-          // status.should.equals(404);
-          // message.should.be.a("string").that.equals("Meal does not exist");
+          status.should.equals(404);
+          message.should.be.a("string").that.equals("Meal does not exist");
           done();
         });
     });
