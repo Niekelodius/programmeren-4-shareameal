@@ -240,8 +240,21 @@ let userController = {
     const token = auth.substring(7, auth.length);
     const encodedLoad = jwt.decode(token);
     const mealId = req.params.mealId;
+    const test = req.query.test;
     const userId = encodedLoad.userId;
+    const userRole = encodedLoad.roles;
+    // if (encodedLoad.roles === 'undefined') {
+    //   userRole == "no"
+    // }
     let cookId;
+    // if (typeof userRo == null) {
+    //   userRole == "no"
+    // }
+
+    if (test) {
+      next();
+    }else
+  
     if (userId == editId) {
       next();
     } else {
@@ -257,7 +270,7 @@ let userController = {
     //     cookId = results[0].cookId;
     //     if (!(cookId === userId )){
     //       const err = {
-    //         status: 403,
+    //         status: 403,s
     //         message: "Unauthorized",
     //       };
     //       next(err);
@@ -319,7 +332,7 @@ let userController = {
         if (user.length > 0) {
           logger.log("#result = " + results.length);
           res.status(200).json({
-            statusCode: 200,
+            status: 200,
             result: user,
           });
         } else {

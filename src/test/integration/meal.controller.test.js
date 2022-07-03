@@ -260,20 +260,20 @@ describe("Manage meals /api/meal", () => {
     });
     it("302-5 Succesfully edited meal", (done) => {
       chai
-        .request(index)
-        .post("/api/auth/login")
-        .send({
-          emailAdress: "test@avans.nl",
-          password: "D389!!ach",
-        })
-        .end((req, res) => {
-          res.should.be.an("object");
-          let { status, result } = res.body;
+        // .request(index)
+        // .post("/api/auth/login")
+        // .send({
+        //   emailAdress: "test@avans.nl",
+        //   password: "D389!!ach",
+        // })
+        // .end((req, res) => {
+        //   res.should.be.an("object");
+        //   let { status, result } = res.body;
 
-          logger.warn(result);
-          status.should.equals(200);
-          validToken = result.token;
-          expect(result).to.have.own.property("token");
+        //   logger.warn(result);
+        //   status.should.equals(200);
+        //   validToken = result.token;
+        //   expect(result).to.have.own.property("token");
           chai
             .request(index)
             .put("/api/meal/" + mealId)
@@ -311,7 +311,7 @@ describe("Manage meals /api/meal", () => {
                 allergenes: "",
               });
               done();
-            });
+            // });
         });
     });
   });

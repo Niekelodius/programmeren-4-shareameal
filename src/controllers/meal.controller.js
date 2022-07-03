@@ -58,6 +58,9 @@ let mealController = {
     const mealId = req.params.mealId;
     const userId = encodedLoad.userId;
     const userRole = encodedLoad.roles;
+    if (userRole == null) {
+      userRole == "no"
+    }
     let cookId;
     pool.query(
       `SELECT cookId FROM meal WHERE id = ${mealId};`,
