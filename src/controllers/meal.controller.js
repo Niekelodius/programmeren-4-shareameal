@@ -65,7 +65,7 @@ let mealController = {
       pool.query(
         `SELECT cookId FROM meal WHERE id = ${mealId};`,
         function (error, results, fields) {
-          if (typeof results[0].cookId != "undefined") {
+          if (typeof results[0].cookId != "undefined" && results[0].cookId != null) {
             if (!(results[0].cookId === userId)) {
               const err = {
                 status: 403,
