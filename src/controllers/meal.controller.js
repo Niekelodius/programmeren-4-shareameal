@@ -104,6 +104,29 @@ let mealController = {
     });
   },
 
+  // checkForMeal: (req, res, next) => {
+  //   next();
+  //   const currentId = req.params.mealId;
+  //   pool.query("SELECT * FROM meal WHERE id = ?;"[currentId], function (error, results, fields) {
+  //     logger.warn(results[0]);
+  //     if (error) {
+  //       const err = {
+  //         status: 400,
+  //         message: "error",
+  //       };
+  //       next(err);
+  //     }else if(results[0].length > 1){
+  //       next();
+  //     }else{
+  //       const err = {
+  //         status: 404,
+  //         message: "Meal does not exist",
+  //       };
+  //       next(err);
+  //     }
+  //   });
+  // },
+
   addMeal: (req, res, next) => {
     let meal = req.body;
     let cookId = 1;
@@ -226,14 +249,7 @@ let mealController = {
             error: "error"
           };
           next(error);
-        }
-        if (results.affectedRows == 0) {
-          const error = {
-            status: 404,
-            message: "Meal does not exist",
-          };
-          next(error);
-        } else {
+        } else if(results.affectedRows > 0) {
           pool.query( `SELECT * FROM meal WHERE id = ${currentId};`, function (error, results, fields){
             res.status(200).json({
               status: 200,
@@ -241,6 +257,12 @@ let mealController = {
             });
             logger.warn(results[0]);
           })
+        }else{
+          const error = {
+            status: 404,
+            message: "Meal does not exist"
+          };
+          next(error);
         }
       }
     );
