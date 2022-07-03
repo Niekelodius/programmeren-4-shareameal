@@ -249,7 +249,7 @@ let mealController = {
             error: "error"
           };
           next(error);
-        } else if(results.affectedRows > 0) {
+        } else if(results.affectedRows) {
           pool.query( `SELECT * FROM meal WHERE id = ${currentId};`, function (error, results, fields){
             res.status(200).json({
               status: 200,
