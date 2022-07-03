@@ -249,7 +249,7 @@ let mealController = {
             error: "error"
           };
           next(error);
-        } else if(result.affectedRows) {
+        } else {
           pool.query( `SELECT * FROM meal WHERE id = ${currentId};`, function (error, results, fields){
             res.status(200).json({
               status: 200,
@@ -257,13 +257,14 @@ let mealController = {
             });
             logger.warn(results[0]);
           })
-        }else{
-          const error = {
-            status: 404,
-            message: "Meal does not exist"
-          };
-          next(error);
         }
+        // else{
+        //   const error = {
+        //     status: 404,
+        //     message: "Meal does not exist"
+        //   };
+        //   next(error);
+        // }
       }
     );
   },
