@@ -180,7 +180,6 @@ let userController = {
       ],
       function (error, results, fields) {
         if (error) {
-          logger.error("Could not edit user: " + error);
           const error = {
             status: 400,
             message: error.message,
