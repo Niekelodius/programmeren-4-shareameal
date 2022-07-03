@@ -165,20 +165,18 @@ let userController = {
   editUser: (req, res, next) => {
     const userId = req.params.userId;
     let user = req.body;
-
+    // "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
     pool.query(
-      // "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
-      "UPDATE `user` SET"+
-      "(firstName, lastName, street, city, password, phoneNumber, roles) " +
-      "VALUES(?, ?, ?, ?, ?, ?, ?)",
+      'UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, emailAdress = ?, isActive = ?, phoneNumber = ? WHERE id = ?;',
       [
         user.firstName,
         user.lastName,
-        user.street,
         user.city,
+        user.street,
         user.password,
+        user.emailAdress,
+        user.isActive,
         user.phoneNumber,
-        user.roles,
         userId,
       ],
       function (error, results, fields) {
