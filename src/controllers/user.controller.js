@@ -383,8 +383,8 @@ let userController = {
         if (results.length > 0) {
           logger.info("Succesfully got profile: " + results);
           res.status(200).json({
-            status: 201,
-            result: results,
+            status: 200,
+            result: results[0],
           });
         } else {
           logger.error("Could not get profile: " + err);

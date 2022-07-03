@@ -197,17 +197,17 @@ describe("Manage users /api/user", () => {
       });
     });
 
-    // it("202-1 Show 0 users", (done) => {
-    //   chai
-    //     .request(index)
-    //     .get("/api/user")
-    //     .end((req, res) => {
-    //       let { status, result } = res.body;
-    //       status.should.equals(200);
-    //       expect([result]).to.deep.include([]);
-    //       done();
-    //     });
-    // });
+    it("202-1 Show users", (done) => {
+      chai
+        .request(index)
+        .get("/api/user")
+        .end((req, res) => {
+          let { status, result } = res.body;
+          status.should.equals(200);
+          result.should.be.an("array");
+          done();
+        });
+    });
 
     it("202-2 Show 2 users", (done) => {
       pool.query(ADD_USER, function (error, results, fields) {
@@ -418,18 +418,25 @@ describe("Manage users /api/user", () => {
         });
     });
 
-    //   it("203-2 Valid token and user exists", (done) => {
-    //     chai
-    //       .request(index)
-    //       .get("/api/user/profile")
-    //       .auth(userToken, { type: "bearer" })
-    //       .end((req, res) => {
-    //         let { status, message } = res.body;
-    //         status.should.equals(200);
-    //         expect(result).to.have.own.property('id', 'firstName', 'lastName', 'isActive', 'password', 'phoneNumber', 'street', 'city');
-    //         done();
-    //       });
-    //   });
+      it("203-2 Valid token and user exists", (done) => {
+        chai
+          .request(index)
+          .get("/api/user/profile")
+          .auth(validToken, { type: "bearer" })
+          .end((req, res) => {
+            let { status, result } = res.body;
+            status.should.equals(200);
+            expect(result).to.have.own.property("id");
+            expect(result).to.have.own.property("firstName");
+            expect(result).to.have.own.property("lastName");
+            expect(result).to.have.own.property("isActive");
+            expect(result).to.have.own.property("password");
+            expect(result).to.have.own.property("phoneNumber");
+            expect(result).to.have.own.property("street");
+            expect(result).to.have.own.property("city");
+            done();
+          });
+      });
   });
 
   describe("TC-204 User details", () => {
