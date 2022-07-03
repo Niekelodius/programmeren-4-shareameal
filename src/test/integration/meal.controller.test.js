@@ -276,7 +276,7 @@ describe("Manage meals /api/meal", () => {
         //   expect(result).to.have.own.property("token");
           chai
             .request(index)
-            .put("/api/meal/" + mealId)
+            .put("/api/meal/" + mealId+"?test=test")
             .auth(validToken, { type: "bearer" })
             .send({
               name: "Frietjes",

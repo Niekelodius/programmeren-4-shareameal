@@ -66,7 +66,7 @@ let mealController = {
     pool.query(
       `SELECT cookId FROM meal WHERE id = ${mealId};`,
       function (error, results, fields) {
-        if (results[0].cookId) {
+        if (results[0].cookId != 'undefined') {
           
 
         if (!(results[0].cookId === userId)){
@@ -307,7 +307,6 @@ let mealController = {
       `DELETE FROM meal WHERE id = ${mealId} ;`,
       function (error, results, fields) {
         if (error) throw error;
-
         if (results.affectedRows > 0) {
           logger.info("#Deleted meal: " + meal);
           res.status(200).json({
