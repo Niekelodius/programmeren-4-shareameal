@@ -167,7 +167,10 @@ let userController = {
     let user = req.body;
 
     pool.query(
-      "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
+      // "UPDATE user SET firstName = ?, lastName = ?, city = ?, street = ?, password = ?, isActive = ?, phoneNumber = ? WHERE id = ?;",
+      "UPDATE `user` SET"+
+      "(firstName, lastName, street, city, password, phoneNumber, roles) " +
+      "VALUES(?, ?, ?, ?, ?, ?, ?)",
       [
         user.firstName,
         user.lastName,
