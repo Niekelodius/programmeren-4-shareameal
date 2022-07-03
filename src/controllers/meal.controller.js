@@ -242,14 +242,14 @@ let mealController = {
         meal.price,
         currentId,
       ],
-      function (error, results, fields) {
+      function (error, result, fields) {
         if (error) {
           const error = {
             status: 404,
             error: "error"
           };
           next(error);
-        } else if(results.affectedRows) {
+        } else if(result.affectedRows) {
           pool.query( `SELECT * FROM meal WHERE id = ${currentId};`, function (error, results, fields){
             res.status(200).json({
               status: 200,
